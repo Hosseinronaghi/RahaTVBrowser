@@ -1,30 +1,41 @@
-# ساخت APK با GitHub Actions
+# ساخت APK نسخه 0.3.0 با GitHub Actions
 
-این روش به نصب Android Studio روی رایانه نیاز ندارد.
-
-1. یک مخزن جدید در GitHub بسازید.
-2. همه فایل‌های این پوشه را در شاخه `main` قرار دهید.
-3. وارد تب **Actions** شوید و Workflow با نام **Android build** را باز کنید.
-4. گزینه **Run workflow** را اجرا کنید.
-5. پس از موفقیت Build، در پایین صفحه فایل Artifact با نام زیر را دریافت کنید:
+Workflow پروژه:
 
 ```text
-raha-browser-debug-and-unsigned-bundle
+.github/workflows/android.yml
 ```
 
-محتویات Artifact:
+نام آن در تب Actions:
 
 ```text
-app-debug.apk          نسخه آزمایشیِ امضاشده و قابل نصب
-app-release.aab        Bundle بدون امضای انتشار
-SHA256SUMS.txt         هش کنترل فایل‌ها
+RahaTVBrowser build
 ```
 
-> فایل Debug برای نصب و آزمایش مناسب است، نه انتشار در Google Play. برای Play باید AAB را با کلید دائمی خودتان امضا کنید.
+## اجرا
 
-## ساخت روی Android Studio
+1. وارد Repository با نام `RahaTVBrowser` شوید.
+2. تب **Actions** را باز کنید.
+3. از ستون سمت چپ **RahaTVBrowser build** را انتخاب کنید.
+4. روی **Run workflow** بزنید و شاخه `main` را اجرا کنید.
+5. پس از سبزشدن Build، همان اجرا را باز کنید.
+6. پایین صفحه از بخش **Artifacts** این مورد را دانلود کنید:
 
-- پروژه را باز کنید.
-- Gradle JDK را روی Java 17 قرار دهید.
-- برای APK آزمایشی: `Build > Build APK(s)`
-- برای فایل Play: `Build > Generate Signed Bundle / APK > Android App Bundle`
+```text
+raha-tv-browser-debug-and-unsigned-bundle
+```
+
+## فایل‌های داخل Artifact
+
+```text
+RahaTVBrowser-arm64-v8a-optimized-test.apk
+RahaTVBrowser-armeabi-v7a-optimized-test.apk
+RahaTVBrowser-release.aab
+SHA256SUMS.txt
+```
+
+برای اغلب Android TVهای جدید، فایل `arm64-v8a` مناسب است. اگر نصب نشد و دستگاه 32 بیتی بود، فایل `armeabi-v7a` را امتحان کنید.
+
+## نکته امضا
+
+APKهای آزمایشی قابل نصب‌اند، اما کلید آن‌ها کلید موقت Debug در Runner گیت‌هاب است. ممکن است برای نصب Build جدید مجبور شوید نسخه قبلی آزمایشی را حذف کنید. برای انتشار و به‌روزرسانی پایدار باید Keystore دائمی بسازید و آن را با GitHub Secrets یا Android Studio مدیریت کنید.

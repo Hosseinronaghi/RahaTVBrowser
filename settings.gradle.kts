@@ -15,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RahaBrowser"
+rootProject.name = "RahaTVBrowser"
 include(":app")

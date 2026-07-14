@@ -1,3 +1,5 @@
-Browse the web on Android TV with a D-pad friendly interface, Bluetooth or USB mouse and keyboard support, and a virtual cursor. Raha Browser uses Mozilla GeckoView, supports URL entry and Google web search, handles full-screen web video, and can open links from other apps.
+Browse the web on Android TV with a favorites-first home page, a high-contrast D-pad cursor, Bluetooth/USB mouse and keyboard support, desktop mode, and improved online video playback controls. RahaTVBrowser uses Mozilla GeckoView, handles full-screen HTML5 video, forwards TV media keys, and keeps player links that request a new window inside the browser.
 
-Raha Browser is an independent open-source project and is not affiliated with or endorsed by Mozilla or Google.
+RahaTVBrowser can run websites embedding JW Player 8.46.1 and newer when the website, stream codecs, CORS, HTTPS, DRM, and device capabilities are compatible. JW Player itself is not included or redistributed.
+
+RahaTVBrowser is an independent open-source project and is not affiliated with or endorsed by Mozilla, Google, or JWX/JW Player.

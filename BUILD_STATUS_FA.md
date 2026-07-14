@@ -1,31 +1,33 @@
-# وضعیت Build تحویلی
+# وضعیت Build و اعتبارسنجی RahaTVBrowser 0.3.0
 
-- ساختار Gradle، Manifest و منابع XML بررسی شده‌اند.
-- APIهای استفاده‌شده با مستندات GeckoView تطبیق داده شده‌اند.
-- XMLهای پروژه از نظر ساختار نحوی اعتبارسنجی شده‌اند.
-- در محیط تولید این بسته Android SDK و Gradle قابل دریافت نبودند؛ بنابراین APK داخل این بسته به‌صورت محلی کامپایل یا روی دستگاه واقعی اجرا نشده است.
-- Workflow آماده GitHub Actions برای ساخت `app-debug.apk` و AAB بدون امضا در پروژه قرار دارد.
+## انجام‌شده
 
-## قبل از انتشار عمومی
+- نام برنامه در منابع متنی: `RahaTVBrowser`
+- شناسه: `com.raha.browser.tv`
+- `compileSdk 36`، `targetSdk 35` و `minSdk 26`
+- Android Gradle Plugin 8.10.1، Gradle 8.11.1 و Java 17
+- ABIهای مجاز: `arm64-v8a` و `armeabi-v7a`
+- حذف خروجی Universal، x86 و x86_64
+- R8 و Resource Shrinking برای Compact و Release
+- Artifact دقیق: `raha-tv-browser-debug-and-unsigned-bundle`
+- بررسی Parse شدن فایل‌های XML
+- بررسی مسیر Package و namespace
+- صفحه خانه علاقه‌مندی‌ها و ذخیره محلی آن‌ها
+- Desktop/Mobile mode
+- نشانگر TextureView، Hover و کلیک Mouse
+- Autoplay و مجوز Media Key System در GeckoView
+- مدیریت لینک‌های پنجره جدید
 
-- Build و تست روی حداقل یک دستگاه arm64 و یک دستگاه armeabi-v7a انجام شود.
-- سازگاری کتابخانه‌های Native با page size 16 KB آزمایش شود.
-- نسخه GeckoView به آخرین نسخه پایدارِ قابل‌اعتبارسنجی ارتقا یابد.
-- دانلود، مجوزهای وب، خطاهای SSL، تب‌ها، تاریخچه، نشانک و بازیابی Crash تکمیل شوند.
+## نیازمند تست عملی روی دستگاه
 
+- اندازه دقیق هر APK پس از Build در GitHub
+- پخش JW Player روی سایت واقعی موردنظر
+- HLS/DASH/MP4 با کدک‌های مختلف
+- Fullscreen، Play/Pause و Seek با مدل‌های متفاوت ریموت
+- DRM/Widevine روی هر مدل تلویزیون
+- رفتار CORS و Cookie در سرویس‌های پخش واقعی
+- نصب روی Android TVهای 32 و 64 بیتی
 
-## تغییرات نسخه ۰٫۲
+## صداقت Build
 
-- Google صفحهٔ خانه و موتور جست‌وجوی پیش‌فرض است.
-- رویدادهای موس USB و بلوتوث مستقیماً به GeckoView می‌رسند.
-- با تشخیص موس واقعی، نشانگر مجازی خودکار خاموش می‌شود.
-- تایپ کیبورد سخت‌افزاری در فیلدهای صفحه حتی در حالت نشانگر مجازی پشتیبانی می‌شود.
-- میان‌برهای متداول مرورگر برای کیبورد اضافه شده‌اند.
-
-
-## تغییرات نسخه ۰٫۲٫۲
-
-- شناسه دائمی برنامه به `com.raha.browser.tv` تغییر کرد.
-- `namespace`، `applicationId`، package کلاس‌های Java و نام کلاس سفارشی داخل XML هماهنگ شدند.
-- `versionCode` به 4 و `versionName` به 0.2.2 افزایش یافت.
-- نام رسمی برنامه **Raha Browser** و دارایی‌های برند نسخه قبل حفظ شدند.
+در محیط تولید این بسته Android SDK و وابستگی‌های GeckoView برای کامپایل محلی در دسترس نبودند؛ بنابراین APK در همین محیط ساخته و نصب نشده است. Workflow پروژه برای Build واقعی روی GitHub Actions آماده شده و باید نتیجه نهایی آن روی تلویزیون آزمایش شود.

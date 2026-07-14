@@ -1,62 +1,52 @@
-# Raha Browser
+# RahaTVBrowser
 
-An open-source Android TV browser MVP powered by Mozilla GeckoView.
+`RahaTVBrowser` is an open-source Android TV browser powered by Mozilla GeckoView and designed for D-pad, Bluetooth/USB mouse, and hardware keyboard use.
 
-The public app name is **Raha Browser**.
+## Version 0.3.0
 
-## Included in v0.2.2
+```text
+App name: RahaTVBrowser
+Application ID: com.raha.browser.tv
+Minimum Android: Android 8.0 / API 26
+GitHub artifact: raha-tv-browser-debug-and-unsigned-bundle
+```
 
-- GeckoView web engine
-- Android TV / Leanback launcher entry
-- D-pad friendly toolbar
-- Virtual cursor controlled by D-pad + OK
-- Back, forward, home and reload
-- URL entry and Google search
+## Highlights
+
+- Favorites-first home page
+- Native favorite toggle button
+- High-contrast D-pad virtual cursor
+- TextureView rendering so the Android cursor overlay remains visible
+- Mouse-style hover and click events for web video controls
+- Bluetooth/USB mouse and keyboard support
+- Desktop/mobile user-agent and viewport toggle
+- Web autoplay permission handling
+- TV media-key forwarding to HTML5/JW Player pages
 - Full-screen web video handling
-- External HTTP/HTTPS link handling
-- Persian and English app strings
-- A pinned multi-ABI GeckoView dependency for reproducible MVP builds
+- `target=_blank` and `window.open()` links redirected into the current browser session
+- Browser-level compatibility for pages using JW Player 8.46.1+, subject to the site's codecs, CORS, DRM, and device capabilities
 
-## Requirements
+## Size-optimized outputs
 
-- Android Studio with JDK 17
-- Android SDK 35
-- Internet access during the first Gradle sync
+The build keeps only `arm64-v8a` and `armeabi-v7a`, removes emulator ABIs, enables R8/resource shrinking for compact/release builds, compresses native libraries, and generates no universal APK.
+
+GitHub Actions produces:
+
+```text
+RahaTVBrowser-arm64-v8a-optimized-test.apk
+RahaTVBrowser-armeabi-v7a-optimized-test.apk
+RahaTVBrowser-release.aab
+SHA256SUMS.txt
+```
+
+The optimized test APKs use a disposable debug certificate. The release AAB must be signed with the permanent publishing key before production distribution.
 
 ## Build
 
-```bash
-gradle :app:assembleDebug
-```
-
-Debug APK:
-
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-Unsigned release bundle (sign it with your permanent release key before Play upload):
+Requirements: JDK 17, Android SDK 36, and Gradle 8.11.1.
 
 ```bash
-gradle :app:bundleRelease
+gradle :app:assembleCompact :app:bundleRelease
 ```
 
-Output:
-
-```text
-app/build/outputs/bundle/release/app-release.aab
-```
-
-## Important before publishing
-
-1. Keep the permanent application ID `com.raha.browser.tv` unchanged after the first Play release.
-2. Review the final icon, TV banner, and store listing assets.
-3. Add bookmarks, history, downloads, permissions and privacy controls before calling it production-ready.
-4. Test every screen with only a D-pad on real Android TV hardware.
-5. Keep GeckoView updated because it is a security-critical browser engine.
-
-See `BUILD_STATUS_FA.md` for the exact validation status of this delivery.
-
-## Physical mouse and keyboard
-
-USB and Bluetooth mice are passed directly to GeckoView for pointer movement, hover, clicking, wheel scrolling, and text selection. If the D-pad virtual cursor is active, the first real mouse event disables it automatically. Hardware keyboards can type into web forms and use Ctrl+L/Ctrl+K, Ctrl+R, Alt+Left/Right, F6, Search, and supported browser media keys.
+JW Player itself is not bundled or redistributed. RahaTVBrowser runs correctly embedded web players when their licensing, scripts, stream formats, CORS, HTTPS, codecs, and DRM requirements are satisfied.

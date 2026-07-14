@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Raha Browser</string>
+    <string name="app_name">RahaTVBrowser</string>
     <string name="back">بازگشت</string>
     <string name="forward">جلو</string>
-    <string name="home">خانه</string>
+    <string name="home">خانه علاقه‌مندی‌ها</string>
     <string name="reload">بارگذاری مجدد</string>
     <string name="stop">توقف بارگذاری</string>
     <string name="go">برو</string>
     <string name="cursor_mode">نشانگر</string>
     <string name="focus_mode">فوکوس</string>
+    <string name="desktop_mode">دسکتاپ</string>
+    <string name="mobile_mode">موبایل</string>
+    <string name="desktop_enabled">نمایش دسکتاپی فعال شد</string>
+    <string name="mobile_enabled">نمایش موبایلی فعال شد</string>
+    <string name="add_favorite">افزودن به علاقه‌مندی‌ها</string>
+    <string name="remove_favorite">حذف از علاقه‌مندی‌ها</string>
+    <string name="favorite_added">به علاقه‌مندی‌ها اضافه شد</string>
+    <string name="favorite_removed">از علاقه‌مندی‌ها حذف شد</string>
     <string name="address_hint">جست‌وجو یا نشانی وب</string>
     <string name="loading">در حال بارگذاری</string>
     <string name="page_failed">صفحه بارگذاری نشد.</string>

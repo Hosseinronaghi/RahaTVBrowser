@@ -13,7 +13,7 @@
         android:background="@color/toolbar_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
+        android:paddingHorizontal="6dp"
         android:paddingVertical="8dp">
 
         <Button
@@ -44,7 +44,7 @@
             android:id="@+id/addressBar"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginHorizontal="6dp"
+            android:layout_marginHorizontal="5dp"
             android:layout_weight="1"
             android:background="@drawable/address_background"
             android:ellipsize="end"
@@ -56,7 +56,7 @@
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_secondary"
             android:textDirection="ltr"
-            android:textSize="16sp" />
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/goButton"
@@ -65,12 +65,26 @@
             android:text="→" />
 
         <Button
+            android:id="@+id/favoriteButton"
+            style="@style/ToolbarButton"
+            android:contentDescription="@string/add_favorite"
+            android:text="☆" />
+
+        <Button
+            android:id="@+id/desktopButton"
+            style="@style/ToolbarButton"
+            android:layout_width="92dp"
+            android:contentDescription="@string/desktop_mode"
+            android:text="@string/desktop_mode"
+            android:textSize="12sp" />
+
+        <Button
             android:id="@+id/modeButton"
             style="@style/ToolbarButton"
-            android:layout_width="94dp"
+            android:layout_width="84dp"
             android:contentDescription="@string/cursor_mode"
             android:text="@string/cursor_mode"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
     </LinearLayout>
 
     <ProgressBar
@@ -94,12 +108,15 @@
             android:id="@+id/geckoView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#FFFFFF" />
+            android:background="#FFFFFF"
+            android:keepScreenOn="true" />
 
         <com.raha.browser.tv.CursorOverlayView
             android:id="@+id/cursorOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clickable="false"
+            android:elevation="100dp"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:visibility="gone" />

@@ -1,1 +1,1 @@
-Open-source Android TV browser with remote, mouse and keyboard support.
+Android TV browser with favorites, streaming controls and D-pad cursor.

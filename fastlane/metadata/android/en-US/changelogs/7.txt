@@ -1,0 +1,1 @@
+Favorites home, favorite button, visible D-pad cursor, improved web-player clicks, desktop mode, media-key forwarding, new-window playback handling, and substantially smaller per-ABI optimized test APKs.

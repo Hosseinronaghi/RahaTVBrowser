@@ -4,7 +4,7 @@
 
 هویت نهایی این پروژه به شکل زیر تثبیت شده است:
 
-- نام برنامه: **Raha Browser**
+- نام برنامه: **RahaTVBrowser**
 - شناسه دائمی بسته: `com.raha.browser.tv`
 - namespace کد: `com.raha.browser.tv`
 
@@ -106,7 +106,7 @@ GeckoView یک موتور امنیتی حساس است. حداقل ماهانه 
 
 ## ۱۱. تفاوت APK و AAB این پروژه
 
-- `app-debug.apk`: خودکار با کلید Debug امضا می‌شود و برای نصب مستقیم و آزمایش است.
+- `RahaTVBrowser-arm64-v8a-optimized-test.apk`: خودکار با کلید Debug امضا می‌شود و برای نصب مستقیم و آزمایش است.
 - `app-release.aab`: خروجی Workflow بدون امضای انتشار است.
 - فایل Play باید با keystore دائمی پروژه امضا شود و بهتر است Play App Signing نیز فعال باشد.
 
