@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
 }
 
+val rahaBundleBuild = providers.gradleProperty("rahaBundleBuild").orNull == "true"
+
 android {
     namespace = "com.raha.browser.tv"
     compileSdk = 36
@@ -10,8 +12,9 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "0.3.2"
+        versionCode = 10
+        versionName = "0.3.3"
+
 
         vectorDrawables {
             useSupportLibrary = false
@@ -45,14 +48,24 @@ android {
         }
     }
 
-    // GeckoView ships as a multi-architecture AAR. Per-ABI APKs remove the
-    // unused native engines and provide the largest practical APK reduction.
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("arm64-v8a", "armeabi-v7a")
-            isUniversalApk = false
+    // Direct-download APKs use ABI splits, while the Play Store AAB uses
+    // ndk.abiFilters. AGP must not see both mechanisms in the same build.
+    // The workflow therefore invokes APK and AAB builds separately and passes
+    // -PrahaBundleBuild=true only for bundleRelease.
+    if (rahaBundleBuild) {
+        defaultConfig {
+            ndk {
+                abiFilters += setOf("arm64-v8a", "armeabi-v7a")
+            }
+        }
+    } else {
+        splits {
+            abi {
+                isEnable = true
+                reset()
+                include("arm64-v8a", "armeabi-v7a")
+                isUniversalApk = false
+            }
         }
     }
 
