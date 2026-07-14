@@ -26,7 +26,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.11.1"
+          gradle-version: "8.13"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
@@ -34,8 +34,11 @@ jobs:
       - name: Install Android SDK 36
         run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
 
-      - name: Build compact per-ABI test APKs and optimized release AAB
-        run: gradle --no-daemon :app:assembleCompact :app:bundleRelease
+      - name: Build compact per-ABI test APKs
+        run: gradle --no-daemon --stacktrace :app:assembleCompact
+
+      - name: Build optimized release AAB
+        run: gradle --no-daemon --stacktrace -PrahaBundleBuild=true :app:bundleRelease
 
       - name: Prepare named outputs
         shell: bash
