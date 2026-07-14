@@ -10,13 +10,8 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "0.3.0"
-
-        // Keep only real Android TV ARM architectures in both APK and AAB output.
-        ndk {
-            abiFilters += setOf("arm64-v8a", "armeabi-v7a")
-        }
+        versionCode = 8
+        versionName = "0.3.1"
 
         vectorDrawables {
             useSupportLibrary = false
