@@ -1,4 +1,4 @@
-name: Android build
+name: RahaTVBrowser build
 
 on:
   workflow_dispatch:
@@ -32,22 +32,36 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install Android SDK 36
-        run: |
-          sdkmanager "platforms;android-36"
-          sdkmanager "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
 
-      - name: Build debug APK and release AAB
-        run: gradle --no-daemon :app:assembleDebug :app:bundleRelease
+      - name: Build compact per-ABI test APKs and optimized release AAB
+        run: gradle --no-daemon :app:assembleCompact :app:bundleRelease
 
-      - name: Create SHA-256 checksums
+      - name: Prepare named outputs
+        shell: bash
         run: |
-          find app/build/outputs -type f \( -name "*.apk" -o -name "*.aab" \) -print0 | xargs -0 sha256sum > SHA256SUMS.txt
+          set -euo pipefail
+          mkdir -p dist
+
+          ARM64_APK="$(find app/build/outputs/apk/compact -type f -name '*.apk' | grep 'arm64-v8a' | head -n 1)"
+          ARMV7_APK="$(find app/build/outputs/apk/compact -type f -name '*.apk' | grep 'armeabi-v7a' | head -n 1)"
+          RELEASE_AAB="$(find app/build/outputs/bundle/release -type f -name '*.aab' | head -n 1)"
+
+          test -n "$ARM64_APK"
+          test -n "$ARMV7_APK"
+          test -n "$RELEASE_AAB"
+
+          cp "$ARM64_APK" dist/RahaTVBrowser-arm64-v8a-optimized-test.apk
+          cp "$ARMV7_APK" dist/RahaTVBrowser-armeabi-v7a-optimized-test.apk
+          cp "$RELEASE_AAB" dist/RahaTVBrowser-release.aab
+
+          (cd dist && sha256sum *.apk *.aab > SHA256SUMS.txt)
+          ls -lh dist
 
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: raha-browser-debug-and-unsigned-bundle
-          path: |
-            app/build/outputs/apk/debug/*.apk
-            app/build/outputs/bundle/release/*.aab
-            SHA256SUMS.txt
+          name: raha-tv-browser-debug-and-unsigned-bundle
+          path: dist/*
+          if-no-files-found: error
+          compression-level: 9
