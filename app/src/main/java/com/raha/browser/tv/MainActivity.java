@@ -552,35 +552,38 @@ public final class MainActivity extends Activity {
         hover.recycle();
     }
 
-    private void clickAtCursor() {
-        cursorOverlay.showClickFeedback();
-        float x = cursorOverlay.getCursorX();
-        float y = cursorOverlay.getCursorY();
-        long downTime = SystemClock.uptimeMillis();
+private void clickAtCursor() {
+    cursorOverlay.showClickFeedback();
 
-        MotionEvent down = obtainMouseEvent(MotionEvent.ACTION_DOWN, x, y,
-                MotionEvent.BUTTON_PRIMARY, downTime, downTime);
-        session.getPanZoomController().onMouseEvent(down);
+    float x = cursorOverlay.getCursorX();
+    float y = cursorOverlay.getCursorY();
+    long downTime = SystemClock.uptimeMillis();
 
-        MotionEvent press = obtainMouseEvent(MotionEvent.ACTION_BUTTON_PRESS, x, y,
-                MotionEvent.BUTTON_PRIMARY, downTime, downTime + 10);
-        press.setActionButton(MotionEvent.BUTTON_PRIMARY);
-        session.getPanZoomController().onMouseEvent(press);
+    MotionEvent down = obtainMouseEvent(
+            MotionEvent.ACTION_DOWN,
+            x,
+            y,
+            MotionEvent.BUTTON_PRIMARY,
+            downTime,
+            downTime
+    );
 
-        MotionEvent release = obtainMouseEvent(MotionEvent.ACTION_BUTTON_RELEASE, x, y,
-                0, downTime, downTime + 55);
-        release.setActionButton(MotionEvent.BUTTON_PRIMARY);
-        session.getPanZoomController().onMouseEvent(release);
+    session.getPanZoomController().onMouseEvent(down);
 
-        MotionEvent up = obtainMouseEvent(MotionEvent.ACTION_UP, x, y,
-                0, downTime, downTime + 60);
-        session.getPanZoomController().onMouseEvent(up);
+    MotionEvent up = obtainMouseEvent(
+            MotionEvent.ACTION_UP,
+            x,
+            y,
+            0,
+            downTime,
+            downTime + 60
+    );
 
-        down.recycle();
-        press.recycle();
-        release.recycle();
-        up.recycle();
-    }
+    session.getPanZoomController().onMouseEvent(up);
+
+    down.recycle();
+    up.recycle();
+}
 
     private void scrollWebPage(float amount) {
         MotionEvent event = obtainMouseScrollEvent(
