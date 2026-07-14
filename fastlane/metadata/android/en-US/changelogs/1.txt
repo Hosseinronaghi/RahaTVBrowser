@@ -1,0 +1,1 @@
+Initial MVP: GeckoView engine, TV toolbar, address/search, virtual cursor and fullscreen handling.

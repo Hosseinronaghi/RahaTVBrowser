@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Raha Browser</string>
+    <string name="back">Back</string>
+    <string name="forward">Forward</string>
+    <string name="home">Home</string>
+    <string name="reload">Reload</string>
+    <string name="stop">Stop loading</string>
+    <string name="go">Go</string>
+    <string name="cursor_mode">Cursor</string>
+    <string name="focus_mode">Focus</string>
+    <string name="address_hint">Search or enter address</string>
+    <string name="loading">Loading</string>
+    <string name="page_failed">The page could not be loaded.</string>
+</resources>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Raha Browser</string>
+    <string name="back">بازگشت</string>
+    <string name="forward">جلو</string>
+    <string name="home">خانه</string>
+    <string name="reload">بارگذاری مجدد</string>
+    <string name="stop">توقف بارگذاری</string>
+    <string name="go">برو</string>
+    <string name="cursor_mode">نشانگر</string>
+    <string name="focus_mode">فوکوس</string>
+    <string name="address_hint">جست‌وجو یا نشانی وب</string>
+    <string name="loading">در حال بارگذاری</string>
+    <string name="page_failed">صفحه بارگذاری نشد.</string>
+</resources>

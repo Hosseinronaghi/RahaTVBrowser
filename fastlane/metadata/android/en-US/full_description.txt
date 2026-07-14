@@ -1,0 +1,3 @@
+Browse the web on Android TV with a D-pad friendly interface, Bluetooth or USB mouse and keyboard support, and a virtual cursor. Raha Browser uses Mozilla GeckoView, supports URL entry and Google web search, handles full-screen web video, and can open links from other apps.
+
+Raha Browser is an independent open-source project and is not affiliated with or endorsed by Mozilla or Google.
