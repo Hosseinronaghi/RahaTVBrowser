@@ -2,25 +2,18 @@ name: RahaTVBrowser build
 
 on:
   workflow_dispatch:
-
   push:
-    branches:
-      - main
-      - master
-
+    branches: [main, master]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [main, master]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: Build APKs and AAB
+    name: Build split and universal APKs plus AAB
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -41,88 +34,54 @@ jobs:
         uses: android-actions/setup-android@v4
 
       - name: Install Android SDK 36
-        run: |
-          sdkmanager "platforms;android-36"
-          sdkmanager "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
 
-      - name: Prepare optional signing keystore
+      - name: Prepare optional permanent signing
         env:
           RAHA_KEYSTORE_BASE64: ${{ secrets.RAHA_KEYSTORE_BASE64 }}
-          RAHA_KEYSTORE_PASSWORD: ${{ secrets.RAHA_KEYSTORE_PASSWORD }}
-          RAHA_KEY_ALIAS: ${{ secrets.RAHA_KEY_ALIAS }}
-          RAHA_KEY_PASSWORD: ${{ secrets.RAHA_KEY_PASSWORD }}
+          RAHA_KEYSTORE_PASSWORD_SECRET: ${{ secrets.RAHA_KEYSTORE_PASSWORD }}
+          RAHA_KEY_ALIAS_SECRET: ${{ secrets.RAHA_KEY_ALIAS }}
+          RAHA_KEY_PASSWORD_SECRET: ${{ secrets.RAHA_KEY_PASSWORD }}
         run: |
           if [ -n "$RAHA_KEYSTORE_BASE64" ]; then
             echo "$RAHA_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/app/raha-release.jks"
-
-            echo "RAHA_KEYSTORE_FILE=$GITHUB_WORKSPACE/app/raha-release.jks" >> "$GITHUB_ENV"
-            echo "RAHA_KEYSTORE_PASSWORD=$RAHA_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
-            echo "RAHA_KEY_ALIAS=$RAHA_KEY_ALIAS" >> "$GITHUB_ENV"
-            echo "RAHA_KEY_PASSWORD=$RAHA_KEY_PASSWORD" >> "$GITHUB_ENV"
             echo "RAHA_SIGNING_ENABLED=true" >> "$GITHUB_ENV"
-
-            echo "Signing keystore prepared."
+            echo "RAHA_KEYSTORE_FILE=$GITHUB_WORKSPACE/app/raha-release.jks" >> "$GITHUB_ENV"
+            echo "RAHA_KEYSTORE_PASSWORD=$RAHA_KEYSTORE_PASSWORD_SECRET" >> "$GITHUB_ENV"
+            echo "RAHA_KEY_ALIAS=$RAHA_KEY_ALIAS_SECRET" >> "$GITHUB_ENV"
+            echo "RAHA_KEY_PASSWORD=$RAHA_KEY_PASSWORD_SECRET" >> "$GITHUB_ENV"
           else
             echo "RAHA_SIGNING_ENABLED=false" >> "$GITHUB_ENV"
-            echo "No signing secrets configured. Test APKs will still be built."
           fi
 
-      - name: Build compact per-ABI APKs
-        run: |
-          gradle --no-daemon --stacktrace :app:assembleCompact
+      - name: Build compact split and universal APKs
+        run: gradle --no-daemon --stacktrace :app:assembleCompact
 
-      - name: Build optimized release AAB
-        run: |
-          gradle --no-daemon --stacktrace -PrahaBundleBuild=true :app:bundleRelease
+      - name: Build release AAB
+        run: gradle --no-daemon --stacktrace -PrahaBundleBuild=true :app:bundleRelease
 
-      - name: Collect and rename outputs
+      - name: Collect outputs
         shell: bash
         run: |
-          set -e
-
+          set -euo pipefail
           mkdir -p release-files
-
-          ARM64_APK=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "arm64|v8a" | head -n 1 || true)
-          ARM32_APK=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "armeabi|v7a" | head -n 1 || true)
-          RELEASE_AAB=$(find app/build/outputs/bundle/release -type f -name "*.aab" | head -n 1 || true)
-
-          if [ -z "$ARM64_APK" ]; then
-            echo "arm64-v8a APK was not found."
-            find app/build/outputs -type f || true
-            exit 1
-          fi
-
-          if [ -z "$ARM32_APK" ]; then
-            echo "armeabi-v7a APK was not found."
-            find app/build/outputs -type f || true
-            exit 1
-          fi
-
-          if [ -z "$RELEASE_AAB" ]; then
-            echo "Release AAB was not found."
-            find app/build/outputs -type f || true
-            exit 1
-          fi
-
-          cp "$ARM64_APK" "release-files/RahaTVBrowser-arm64-v8a.apk"
-          cp "$ARM32_APK" "release-files/RahaTVBrowser-armeabi-v7a.apk"
-          cp "$RELEASE_AAB" "release-files/RahaTVBrowser-release.aab"
-
-          echo "Generated files:"
+          find app/build/outputs -type f | sort
+          ARM64=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "arm64|v8a" | grep -v -i universal | head -n1)
+          ARM32=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "armeabi|v7a" | grep -v -i universal | head -n1)
+          UNIVERSAL=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -i universal | head -n1)
+          AAB=$(find app/build/outputs/bundle/release -type f -name "*.aab" | head -n1)
+          test -n "$ARM64"
+          test -n "$ARM32"
+          test -n "$UNIVERSAL"
+          test -n "$AAB"
+          cp "$ARM64" release-files/RahaTVBrowser-arm64-v8a.apk
+          cp "$ARM32" release-files/RahaTVBrowser-armeabi-v7a.apk
+          cp "$UNIVERSAL" release-files/RahaTVBrowser-universal.apk
+          cp "$AAB" release-files/RahaTVBrowser-release.aab
+          (cd release-files && sha256sum * > SHA256SUMS.txt)
           ls -lh release-files
 
-      - name: Create SHA-256 checksums
-        working-directory: release-files
-        run: |
-          sha256sum \
-            RahaTVBrowser-arm64-v8a.apk \
-            RahaTVBrowser-armeabi-v7a.apk \
-            RahaTVBrowser-release.aab \
-            > SHA256SUMS.txt
-
-          cat SHA256SUMS.txt
-
-      - name: Upload APK and AAB artifact
+      - name: Upload outputs
         uses: actions/upload-artifact@v4
         with:
           name: raha-tv-browser-debug-and-unsigned-bundle
