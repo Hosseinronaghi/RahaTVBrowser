@@ -1,4 +1,4 @@
-# ساخت APK نسخه 0.3.0 با GitHub Actions
+# ساخت APK نسخه 0.3.1 با GitHub Actions
 
 Workflow پروژه:
 

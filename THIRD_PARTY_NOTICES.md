@@ -7,3 +7,6 @@ Source and licensing information: https://mozilla.github.io/geckoview/
 
 The application name, icon and store listing must not imply that Mozilla endorses this application.
 “Firefox” and the Firefox logo are Mozilla trademarks and are not used by this project.
+
+## Optional Vazirmatn font
+RahaTVBrowser 0.4.1 includes optional runtime integration for Vazirmatn. The font binary is not bundled in this source archive. If added by the distributor, Vazirmatn is licensed under the SIL Open Font License 1.1 and its license notice must be retained.

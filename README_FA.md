@@ -2,7 +2,7 @@
 
 `RahaTVBrowser` یک مرورگر متن‌باز مخصوص Android TV است که با **Mozilla GeckoView** ساخته شده و برای ریموت، موس و کیبورد طراحی شده است.
 
-## مشخصات نسخه 0.3.0
+## مشخصات نسخه 0.3.3
 
 ```text
 نام برنامه: RahaTVBrowser
@@ -94,4 +94,12 @@ gradle :app:assembleCompact :app:bundleRelease
 
 این پروژه خود کتابخانه تجاری JW Player را داخل APK قرار نمی‌دهد؛ بلکه صفحات وبی را که JW Player را قانونی و صحیح بارگذاری می‌کنند اجرا می‌کند. پخش نهایی به کدک دستگاه، نوع Stream، تنظیمات CORS، گواهی HTTPS، DRM، مجوزهای سرویس و کیفیت پیاده‌سازی سایت وابسته است.
 
-وضعیت اعتبارسنجی در `BUILD_STATUS_FA.md` و روش به‌روزرسانی GitHub در `UPDATE_GITHUB_V0.3.0_FA.md` آمده است.
+وضعیت اعتبارسنجی در `BUILD_STATUS_FA.md` و روش به‌روزرسانی GitHub در `UPDATE_GITHUB_V0.3.3_FA.md` آمده است.
+
+## نسخه 0.4.0
+
+این نسخه تب‌ها، Private Mode، History، Settings و Player داخلی Media3 را اضافه می‌کند و دو APK جداگانه ARM تولید می‌کند. راهنمای Update امضاشده در `SIGNING_AND_UPDATE_FA.md` است.
+
+## فونت رابط در نسخه 0.4.1
+
+نسخه 0.4.1 آماده استفاده از Vazirmatn است. فایل فونت را با نام `vazirmatn.ttf` در مسیر `app/src/main/res/font/` قرار دهید. اگر فایل وجود نداشته باشد، برنامه از فونت پیش‌فرض Android استفاده می‌کند. جزئیات در `FONT_VAZIRMATN_SETUP_FA.md` آمده است.

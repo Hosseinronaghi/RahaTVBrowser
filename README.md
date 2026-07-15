@@ -2,7 +2,7 @@
 
 `RahaTVBrowser` is an open-source Android TV browser powered by Mozilla GeckoView and designed for D-pad, Bluetooth/USB mouse, and hardware keyboard use.
 
-## Version 0.3.0
+## Version 0.3.3
 
 ```text
 App name: RahaTVBrowser

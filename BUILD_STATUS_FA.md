@@ -1,4 +1,4 @@
-# وضعیت Build و اعتبارسنجی RahaTVBrowser 0.3.0
+# وضعیت Build و اعتبارسنجی RahaTVBrowser 0.3.3
 
 ## انجام‌شده
 

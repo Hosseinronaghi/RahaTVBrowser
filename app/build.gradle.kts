@@ -12,12 +12,30 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.3.3"
+        versionCode = 12
+        versionName = "0.4.1"
 
 
         vectorDrawables {
             useSupportLibrary = false
+        }
+    }
+
+    val releaseStoreFile = System.getenv("RAHA_KEYSTORE_PATH")
+    val releaseStorePassword = System.getenv("RAHA_KEYSTORE_PASSWORD")
+    val releaseKeyAlias = System.getenv("RAHA_KEY_ALIAS")
+    val releaseKeyPassword = System.getenv("RAHA_KEY_PASSWORD")
+    val hasReleaseSigning = !releaseStoreFile.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() &&
+            !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("rahaRelease") {
+                storeFile = file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
         }
     }
 
@@ -29,6 +47,7 @@ android {
         }
 
         getByName("release") {
+            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("rahaRelease")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -43,7 +62,7 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-optimized-test"
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseSigning) signingConfigs.getByName("rahaRelease") else signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
         }
     }
@@ -94,4 +113,8 @@ dependencies {
     // Pinned for reproducible builds. Review GeckoView releases before public releases.
     implementation("org.mozilla.geckoview:geckoview:150.0.20260511200624")
     implementation("androidx.annotation:annotation:1.9.1")
+    implementation("androidx.media3:media3-exoplayer:1.10.1")
+    implementation("androidx.media3:media3-exoplayer-hls:1.10.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.10.1")
+    implementation("androidx.media3:media3-ui:1.10.1")
 }
