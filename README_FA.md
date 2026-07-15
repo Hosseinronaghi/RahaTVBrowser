@@ -43,3 +43,11 @@
 Artifact:
 
 `raha-tv-browser-debug-and-unsigned-bundle`
+
+
+## خروجی‌ها در نسخه 0.5.1
+
+- `RahaTVBrowser-arm64-v8a.apk`
+- `RahaTVBrowser-armeabi-v7a.apk`
+- `RahaTVBrowser-universal.apk`
+- `RahaTVBrowser-release.aab`

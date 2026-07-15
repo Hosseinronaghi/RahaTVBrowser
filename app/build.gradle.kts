@@ -13,8 +13,8 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "0.5.0"
+        versionCode = 14
+        versionName = "0.5.1"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -57,7 +57,7 @@ android {
                 isEnable = true
                 reset()
                 include("arm64-v8a", "armeabi-v7a")
-                isUniversalApk = false
+                isUniversalApk = true
             }
         }
     } else {
