@@ -1,5 +1,1 @@
-Browse the web on Android TV with a favorites-first home page, a high-contrast D-pad cursor, Bluetooth/USB mouse and keyboard support, desktop mode, and improved online video playback controls. RahaTVBrowser uses Mozilla GeckoView, handles full-screen HTML5 video, forwards TV media keys, and keeps player links that request a new window inside the browser.
-
-RahaTVBrowser can run websites embedding JW Player 8.46.1 and newer when the website, stream codecs, CORS, HTTPS, DRM, and device capabilities are compatible. JW Player itself is not included or redistributed.
-
-RahaTVBrowser is an independent open-source project and is not affiliated with or endorsed by Mozilla, Google, or JWX/JW Player.
+RahaTVBrowser is an open-source browser designed for Android TV. Browse with a remote, mouse or keyboard; save favorites; use tabs, private mode and voice search; play detected streams with a native Media3 player; open local media from USB; and import your own M3U/M3U8 IPTV playlists. No channels are bundled with the app.

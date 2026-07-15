@@ -1,53 +1,39 @@
-# RahaTVBrowser 0.5.0
+# RahaTVBrowser 0.6.0
 
-بازنویسی کامل مرورگر Android TV با معماری سبک مشابه مرورگرهای TV مدرن:
-
-- موتور مرور: Android System WebView / Chromium
-- پخش آنلاین و محلی: AndroidX Media3 / ExoPlayer
-- شناسه برنامه: `com.raha.browser.tv`
-- حداقل Android: 8.0 / API 26
-- دو APK جدا: arm64-v8a و armeabi-v7a
+مرورگر متن‌باز Android TV با موتور System WebView و پخش‌کننده Media3.
 
 ## امکانات
 
-- صفحه خانه فارسی/انگلیسی با Favoriteهای متراکم و ۱۰ بازدید اخیر
-- تغییر مستقل زبان فارسی/انگلیسی و جهت RTL/LTR/خودکار
-- Dark / Light / System theme
-- حداکثر ۵ تب، تب خصوصی و بستن تب
-- Desktop/Mobile mode با User-Agent و viewport متفاوت
-- نشانگر D-pad، موس و کیبورد Bluetooth/USB
-- تشخیص ویدئوهای HTML5 و JW Player با JavaScript Bridge
-- رهگیری URLهای HLS/DASH/MP4 و بازکردن با Player داخلی
-- انتقال Cookie، Referer و User-Agent به Player
-- Buffer بزرگ‌تر، adaptive track selection و SurfaceView برای کاهش لگ
-- File manager سبک با Storage Access Framework برای USB
-- پخش ویدئو، صوت و نمایش عکس محلی
+- صفحه خانه Asset-based با نشانی داخلی تمیز `raha://home`
+- میان‌بر Google، YouTube، SoundCloud، ChatGPT و Wikipedia
+- علاقه‌مندی‌ها و ۱۰ بازدید اخیر
+- حداکثر ۵ تب و بستن تب فعلی
+- حالت خصوصی با عدم ثبت تاریخچه و پاک‌سازی Session Cookie هنگام بستن تب
+- پوسته روشن، تیره و هماهنگ با سیستم
+- فارسی و انگلیسی با جهت خودکار، راست‌چین یا چپ‌چین
+- جستجو و فرمان صوتی فارسی و انگلیسی
+- حالت موبایل و دسکتاپ
+- نشانگر D-pad و موس/کیبورد USB یا Bluetooth
+- شناسایی اولیه HTML5/JW Player و انتقال لینک‌های مستقیم به Media3
+- پخش HLS، DASH، MP4، WebM، MKV و صدا
+- مرور رسانه‌های فلش/USB از طریق Storage Access Framework
+- IPTV با Playlistهای M3U/M3U8 کاربر
+- خروجی arm64-v8a، armeabi-v7a، Universal و AAB
 
-## فونت وزیرمتن
+## ساخت
 
-فایل فونت به‌دلیل محدودیت توزیع داخل بسته قرار نگرفته است. فایل موجود خودتان را در مسیر زیر حفظ کنید:
+فایل‌ها را در ریشه Repository قرار دهید و Workflow زیر را اجرا کنید:
 
-`app/src/main/res/font/vazirmatn.ttf`
-
-سپس در `styles.xml` مقدار `fontFamily` را از `sans-serif` به `@font/vazirmatn` تغییر دهید.
-
-## Build
-
-فایل `.github/workflows/android.yml` خروجی‌های زیر را می‌سازد:
-
-- `RahaTVBrowser-arm64-v8a.apk`
-- `RahaTVBrowser-armeabi-v7a.apk`
-- `RahaTVBrowser-release.aab`
-- `SHA256SUMS.txt`
+`.github/workflows/android.yml`
 
 Artifact:
 
 `raha-tv-browser-debug-and-unsigned-bundle`
 
+## شناسه
 
-## خروجی‌ها در نسخه 0.5.1
+`com.raha.browser.tv`
 
-- `RahaTVBrowser-arm64-v8a.apk`
-- `RahaTVBrowser-armeabi-v7a.apk`
-- `RahaTVBrowser-universal.apk`
-- `RahaTVBrowser-release.aab`
+## فونت وزیرمتن
+
+به‌دلیل توزیع‌نشدن فایل فونت در بسته، رابط با فونت سیستم Build می‌شود. برای افزودن وزیرمتن فایل مجاز خود را در `app/src/main/assets/fonts/vazirmatn.ttf` قرار دهید و FontManager سفارشی اضافه کنید. صفحه خانه از Vazirmatn در صورت موجودبودن در CSS استفاده می‌کند و در غیر این صورت fallback دارد.

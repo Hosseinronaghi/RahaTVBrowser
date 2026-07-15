@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="navy_950">#07131F</color>
-    <color name="navy_900">#0D1B2A</color>
-    <color name="navy_800">#142A3B</color>
-    <color name="blue_500">#4DA3FF</color>
-    <color name="surface_dark">#101C28</color>
-    <color name="surface_light">#F5F7FA</color>
-    <color name="text_dark">#F7FAFC</color>
-    <color name="text_light">#17202A</color>
-    <color name="focus">#74B9FF</color>
-</resources>
+<?xml version="1.0" encoding="utf-8"?><resources><color name="navy_950">#EDF3F9</color><color name="navy_900">#F8FBFF</color><color name="navy_800">#DCE9F6</color><color name="blue_500">#2479D8</color><color name="focus">#095BB8</color><color name="toolbar_text">#17243A</color><color name="white">#FFFFFF</color><color name="light_bg">#EDF3F9</color><color name="light_surface">#FFFFFF</color><color name="dark_text">#17243A</color></resources>

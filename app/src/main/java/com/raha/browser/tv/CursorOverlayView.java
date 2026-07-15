@@ -14,6 +14,7 @@ public class CursorOverlayView extends View {
     private float y = 280f;
     private boolean visible;
     private float clickPulse;
+    private float speed = 28f;
 
     public CursorOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -23,6 +24,9 @@ public class CursorOverlayView extends View {
         stroke.setStrokeWidth(3f);
         stroke.setColor(0xFF0D1B2A);
     }
+
+    public void setSpeed(float value) { speed = Math.max(8f, Math.min(60f, value)); }
+    public float speed() { return speed; }
 
     public void move(float dx, float dy) {
         visible = true;

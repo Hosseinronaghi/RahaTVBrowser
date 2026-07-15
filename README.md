@@ -1,3 +1,4 @@
-# RahaTVBrowser 0.5.0
+# RahaTVBrowser 0.6.0
+Open-source Android TV browser using Android System WebView and AndroidX Media3. Includes TV navigation, tabs, favorites, history, voice search/commands, local USB media browsing, IPTV playlists, bilingual UI, themes, private tabs, and split/universal APK builds.
 
-Lightweight open-source Android TV browser rebuilt around Android System WebView and AndroidX Media3. Includes TV remote cursor, Bluetooth mouse/keyboard support, favorites, recent history, five tabs, private mode, desktop mode, bilingual RTL/LTR home UI, native online/local playback, and USB media browsing.
+Package: `com.raha.browser.tv`

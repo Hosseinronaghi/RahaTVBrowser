@@ -28,6 +28,7 @@ public class PlayerActivity extends AppCompatActivity {
     public static final String EXTRA_USER_AGENT = "user_agent";
     public static final String EXTRA_COOKIE = "cookie";
     public static final String EXTRA_MAX_HEIGHT = "max_height";
+    public static final String EXTRA_TITLE = "title";
 
     private ExoPlayer player;
 
@@ -39,7 +40,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_player);
         PlayerView view = findViewById(R.id.playerView);
-        int maxHeight = getIntent().getIntExtra(EXTRA_MAX_HEIGHT, 1080);
+        int maxHeight = getIntent().getIntExtra(EXTRA_MAX_HEIGHT, new AppSettings(this).preferredHeight());
 
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
         DefaultTrackSelector.Parameters.Builder params = trackSelector.buildUponParameters()
@@ -58,10 +59,11 @@ public class PlayerActivity extends AppCompatActivity {
                 .setAllowCrossProtocolRedirects(true)
                 .setConnectTimeoutMs(15_000)
                 .setReadTimeoutMs(30_000)
-                .setUserAgent(value(EXTRA_USER_AGENT, "RahaTVBrowser/0.5"));
+                .setUserAgent(value(EXTRA_USER_AGENT, "RahaTVBrowser/0.6"));
 
         Map<String, String> headers = new HashMap<>();
         put(headers, "Referer", getIntent().getStringExtra(EXTRA_REFERER));
+        put(headers, "Origin", originOf(getIntent().getStringExtra(EXTRA_REFERER)));
         put(headers, "Cookie", getIntent().getStringExtra(EXTRA_COOKIE));
         headers.put("Accept", "*/*");
         http.setDefaultRequestProperties(headers);
@@ -110,6 +112,7 @@ public class PlayerActivity extends AppCompatActivity {
         String u = url.toLowerCase();
         return u.matches(".*\\.(jpg|jpeg|png|webp|gif|bmp)(\\?.*)?$");
     }
+    private String originOf(String referer) { try { Uri u=Uri.parse(referer); return u.getScheme()+"://"+u.getAuthority(); } catch(Exception e){ return null; } }
     private String value(String key, String fallback) { String v = getIntent().getStringExtra(key); return v == null ? fallback : v; }
     private void put(Map<String,String> map, String key, String value) { if (value != null && !value.isBlank()) map.put(key, value); }
 

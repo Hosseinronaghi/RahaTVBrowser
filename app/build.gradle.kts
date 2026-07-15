@@ -13,8 +13,8 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.5.1"
+        versionCode = 16
+        versionName = "0.6.0"
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -96,5 +96,5 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-dash:$media3")
     implementation("androidx.media3:media3-ui:$media3")
     implementation("androidx.media3:media3-datasource-okhttp:$media3")
-    implementation("com.squareup.okhttp3:okhttp:5.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

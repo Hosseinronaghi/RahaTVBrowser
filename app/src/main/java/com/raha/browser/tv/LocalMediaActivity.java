@@ -25,6 +25,8 @@ public class LocalMediaActivity extends AppCompatActivity {
 
     private final ActivityResultLauncher<Uri> folderPicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocumentTree(), this::onFolderSelected);
+    private final ActivityResultLauncher<String[]> filePicker = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(), uri -> { if (uri != null) { Intent i=new Intent(this,PlayerActivity.class); i.putExtra(PlayerActivity.EXTRA_URL,uri.toString()); startActivity(i); } });
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +36,7 @@ public class LocalMediaActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         list.setAdapter(adapter);
         select.setOnClickListener(v -> folderPicker.launch(null));
+        findViewById(R.id.selectSingleFileButton).setOnClickListener(v -> filePicker.launch(new String[]{"video/*","audio/*","image/*"}));
         list.setOnItemClickListener((p,v,pos,id) -> open(files.get(pos)));
     }
 

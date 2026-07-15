@@ -1,1 +1,1 @@
-Android TV browser with favorites, streaming controls and D-pad cursor.
+Fast TV browser with streaming, IPTV, voice and local media.

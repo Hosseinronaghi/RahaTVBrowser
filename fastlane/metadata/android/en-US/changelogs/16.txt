@@ -1,0 +1,1 @@
+Complete 0.6.0 redesign: fixed home URL and tabs, themes, bilingual RTL/LTR UI, voice commands, IPTV, USB media, native playback improvements, and new minimal branding.
