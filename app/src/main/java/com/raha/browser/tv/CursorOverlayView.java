@@ -7,111 +7,68 @@ import android.graphics.Path;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.annotation.Nullable;
+public class CursorOverlayView extends View {
+    private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint stroke = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private float x = 420f;
+    private float y = 280f;
+    private boolean visible;
+    private float clickPulse;
 
-/** High-contrast D-pad mouse cursor drawn above GeckoView. */
-public final class CursorOverlayView extends View {
-    private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint darkStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint lightStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint clickPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private float cursorX;
-    private float cursorY;
-    private boolean initialized;
-    private boolean clickFeedback;
-
-    public CursorOverlayView(Context context, @Nullable AttributeSet attrs) {
+    public CursorOverlayView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(false);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-
-        fillPaint.setColor(0xFFFFB300);
-        fillPaint.setStyle(Paint.Style.FILL);
-
-        darkStrokePaint.setColor(0xFF050505);
-        darkStrokePaint.setStyle(Paint.Style.STROKE);
-        darkStrokePaint.setStrokeWidth(dp(7));
-        darkStrokePaint.setStrokeJoin(Paint.Join.ROUND);
-
-        lightStrokePaint.setColor(0xFFFFFFFF);
-        lightStrokePaint.setStyle(Paint.Style.STROKE);
-        lightStrokePaint.setStrokeWidth(dp(3));
-        lightStrokePaint.setStrokeJoin(Paint.Join.ROUND);
-
-        clickPaint.setColor(0xD9FFFFFF);
-        clickPaint.setStyle(Paint.Style.STROKE);
-        clickPaint.setStrokeWidth(dp(3));
+        fill.setColor(0xFFF7FAFC);
+        stroke.setStyle(Paint.Style.STROKE);
+        stroke.setStrokeWidth(3f);
+        stroke.setColor(0xFF0D1B2A);
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        if (!initialized && w > 0 && h > 0) {
-            cursorX = w / 2f;
-            cursorY = h / 2f;
-            initialized = true;
-        }
-        clamp();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        float s = dp(30);
-        Path pointer = new Path();
-        pointer.moveTo(cursorX, cursorY);
-        pointer.lineTo(cursorX, cursorY + s);
-        pointer.lineTo(cursorX + s * 0.28f, cursorY + s * 0.72f);
-        pointer.lineTo(cursorX + s * 0.52f, cursorY + s * 1.12f);
-        pointer.lineTo(cursorX + s * 0.70f, cursorY + s * 1.02f);
-        pointer.lineTo(cursorX + s * 0.47f, cursorY + s * 0.64f);
-        pointer.lineTo(cursorX + s * 0.86f, cursorY + s * 0.58f);
-        pointer.close();
-
-        canvas.drawPath(pointer, darkStrokePaint);
-        canvas.drawPath(pointer, fillPaint);
-        canvas.drawPath(pointer, lightStrokePaint);
-        if (clickFeedback) {
-            canvas.drawCircle(cursorX, cursorY, dp(20), clickPaint);
-        }
-    }
-
-    public void moveBy(float dx, float dy) {
-        cursorX += dx;
-        cursorY += dy;
-        clamp();
+    public void move(float dx, float dy) {
+        visible = true;
+        x = Math.max(8f, Math.min(getWidth() - 24f, x + dx));
+        y = Math.max(64f, Math.min(getHeight() - 24f, y + dy));
         invalidate();
     }
+
+    public void hideCursor() {
+        visible = false;
+        invalidate();
+    }
+
+    public void showCursor() {
+        visible = true;
+        invalidate();
+    }
+
+    public float getCursorX() { return x; }
+    public float getCursorY() { return y; }
 
     public void showClickFeedback() {
-        clickFeedback = true;
+        clickPulse = 1f;
+        animate().setDuration(180).withEndAction(() -> {
+            clickPulse = 0f;
+            invalidate();
+        }).start();
         invalidate();
-        removeCallbacks(clearClickFeedback);
-        postDelayed(clearClickFeedback, 140);
     }
 
-    private final Runnable clearClickFeedback = () -> {
-        clickFeedback = false;
-        invalidate();
-    };
-
-    public float getCursorX() {
-        return cursorX;
-    }
-
-    public float getCursorY() {
-        return cursorY;
-    }
-
-    private void clamp() {
-        float margin = dp(6);
-        cursorX = Math.max(margin, Math.min(Math.max(margin, getWidth() - dp(34)), cursorX));
-        cursorY = Math.max(margin, Math.min(Math.max(margin, getHeight() - dp(38)), cursorY));
-    }
-
-    private float dp(float value) {
-        return value * getResources().getDisplayMetrics().density;
+    @Override protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (!visible) return;
+        Path p = new Path();
+        p.moveTo(x, y);
+        p.lineTo(x, y + 32);
+        p.lineTo(x + 9, y + 24);
+        p.lineTo(x + 17, y + 40);
+        p.lineTo(x + 24, y + 36);
+        p.lineTo(x + 16, y + 21);
+        p.lineTo(x + 30, y + 20);
+        p.close();
+        canvas.drawPath(p, fill);
+        canvas.drawPath(p, stroke);
+        if (clickPulse > 0f) {
+            canvas.drawCircle(x + 6, y + 8, 22f, stroke);
+        }
     }
 }

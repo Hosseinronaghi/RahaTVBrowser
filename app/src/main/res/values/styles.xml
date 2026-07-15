@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
-        <item name="android:fontFamily">sans-serif</item><item name="android:windowBackground">@color/app_background</item>
-        <item name="android:colorAccent">@color/accent</item><item name="android:navigationBarColor">@color/app_background</item>
-        <item name="android:statusBarColor">@color/app_background</item><item name="android:windowLightStatusBar">false</item>
+    <style name="Theme.RahaTVBrowser" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:windowBackground">@color/navy_950</item>
+        <item name="android:colorAccent">@color/blue_500</item>
+        <item name="android:navigationBarColor">@color/navy_950</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
-    <style name="ToolbarButton">
-        <item name="android:layout_width">43dp</item><item name="android:layout_height">42dp</item>
-        <item name="android:layout_marginHorizontal">2dp</item><item name="android:background">@drawable/focusable_button</item>
-        <item name="android:textColor">@color/text_primary</item><item name="android:textSize">17sp</item>
-        <item name="android:gravity">center</item><item name="android:focusable">true</item><item name="android:clickable">true</item>
-        <item name="android:stateListAnimator">@null</item><item name="android:minWidth">0dp</item><item name="android:minHeight">0dp</item>
+    <style name="ToolbarButton" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:layout_width">42dp</item>
+        <item name="android:layout_height">42dp</item>
+        <item name="android:layout_marginHorizontal">2dp</item>
+        <item name="android:background">@drawable/focusable_button</item>
+        <item name="android:textColor">#F7FAFC</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
         <item name="android:padding">0dp</item>
+        <item name="android:focusable">true</item>
     </style>
 </resources>

@@ -1,105 +1,45 @@
-# RahaTVBrowser
+# RahaTVBrowser 0.5.0
 
-`RahaTVBrowser` یک مرورگر متن‌باز مخصوص Android TV است که با **Mozilla GeckoView** ساخته شده و برای ریموت، موس و کیبورد طراحی شده است.
+بازنویسی کامل مرورگر Android TV با معماری سبک مشابه مرورگرهای TV مدرن:
 
-## مشخصات نسخه 0.3.3
+- موتور مرور: Android System WebView / Chromium
+- پخش آنلاین و محلی: AndroidX Media3 / ExoPlayer
+- شناسه برنامه: `com.raha.browser.tv`
+- حداقل Android: 8.0 / API 26
+- دو APK جدا: arm64-v8a و armeabi-v7a
 
-```text
-نام برنامه: RahaTVBrowser
-شناسه برنامه: com.raha.browser.tv
-حداقل اندروید: Android 8.0 / API 26
-Artifact گیت‌هاب: raha-tv-browser-debug-and-unsigned-bundle
-```
+## امکانات
 
-## امکانات این نسخه
+- صفحه خانه فارسی/انگلیسی با Favoriteهای متراکم و ۱۰ بازدید اخیر
+- تغییر مستقل زبان فارسی/انگلیسی و جهت RTL/LTR/خودکار
+- Dark / Light / System theme
+- حداکثر ۵ تب، تب خصوصی و بستن تب
+- Desktop/Mobile mode با User-Agent و viewport متفاوت
+- نشانگر D-pad، موس و کیبورد Bluetooth/USB
+- تشخیص ویدئوهای HTML5 و JW Player با JavaScript Bridge
+- رهگیری URLهای HLS/DASH/MP4 و بازکردن با Player داخلی
+- انتقال Cookie، Referer و User-Agent به Player
+- Buffer بزرگ‌تر، adaptive track selection و SurfaceView برای کاهش لگ
+- File manager سبک با Storage Access Framework برای USB
+- پخش ویدئو، صوت و نمایش عکس محلی
 
-- صفحه خانه مبتنی بر علاقه‌مندی‌ها به‌جای بازکردن مستقیم Google
-- دکمه ستاره برای افزودن یا حذف صفحه فعلی از علاقه‌مندی‌ها
-- جست‌وجوی Google در صفحه خانه و نوار نشانی
-- نشانگر بزرگ و پرکنتراست برای کنترل با D-pad
-- استفاده از `TextureView` برای دیده‌شدن نشانگر روی محتوای GeckoView
-- کلیک واقعی موس برای دکمه‌های پخش، لینک‌ها و کنترل‌های وب
-- پشتیبانی از موس و کیبورد Bluetooth/USB
-- دکمه تغییر بین نمای Desktop و Mobile
-- اجازه پخش خودکار صوتی و بی‌صدا در سطح GeckoView
-- ارسال کلیدهای Play/Pause، Stop، Forward و Rewind ریموت به صفحه وب
-- پشتیبانی از Fullscreen و جلوگیری از خاموش‌شدن صفحه هنگام مرور و پخش
-- بازکردن لینک‌های `target=_blank` و `window.open()` در همان نشست مرورگر
-- سازگاری مرورگری با صفحات مبتنی بر JW Player 8.46.1 و نسخه‌های جدیدتر، در محدوده فرمت، کدک، CORS و DRM پشتیبانی‌شده توسط سایت و دستگاه
+## فونت وزیرمتن
 
-## کنترل با ریموت
+فایل فونت به‌دلیل محدودیت توزیع داخل بسته قرار نگرفته است. فایل موجود خودتان را در مسیر زیر حفظ کنید:
 
-```text
-جهت‌ها: حرکت نشانگر
-OK / Enter: کلیک
-Back در حالت نشانگر: خروج از حالت نشانگر
-Menu: تغییر بین نشانگر و فوکوس
-Page/Channel Up و Down: اسکرول
-Play/Pause و کلیدهای رسانه: ارسال به پخش‌کننده صفحه
-```
+`app/src/main/res/font/vazirmatn.ttf`
 
-## کاهش شدید حجم
+سپس در `styles.xml` مقدار `fontFamily` را از `sans-serif` به `@font/vazirmatn` تغییر دهید.
 
-GeckoView یک موتور کامل مرورگر و شامل کتابخانه‌های Native است؛ بنابراین همچنان از WebView بزرگ‌تر خواهد بود. برای کاهش عملی حجم این نسخه:
+## Build
 
-- فقط ABIهای واقعی تلویزیون یعنی `arm64-v8a` و `armeabi-v7a` نگه داشته شده‌اند.
-- `x86` و `x86_64` از APK و AAB حذف شده‌اند.
-- APK جداگانه برای هر معماری ساخته می‌شود.
-- R8 و Resource Shrinking در خروجی Compact و Release فعال است.
-- کتابخانه‌های Native داخل APK فشرده می‌شوند.
-- Universal APK ساخته نمی‌شود.
-- Google Play از AAB برای تحویل اجزای مخصوص دستگاه استفاده می‌کند.
+فایل `.github/workflows/android.yml` خروجی‌های زیر را می‌سازد:
 
-## خروجی GitHub Actions
+- `RahaTVBrowser-arm64-v8a.apk`
+- `RahaTVBrowser-armeabi-v7a.apk`
+- `RahaTVBrowser-release.aab`
+- `SHA256SUMS.txt`
 
-Workflow با نام `RahaTVBrowser build` این فایل‌ها را تولید می‌کند:
+Artifact:
 
-```text
-RahaTVBrowser-arm64-v8a-optimized-test.apk
-RahaTVBrowser-armeabi-v7a-optimized-test.apk
-RahaTVBrowser-release.aab
-SHA256SUMS.txt
-```
-
-APKهای `optimized-test` با کلید آزمایشی Debug امضا می‌شوند و برای نصب مستقیم و تست هستند. AAB برای انتشار نهایی باید با کلید دائمی پروژه آماده و امضا شود.
-
-## انتخاب APK مناسب
-
-بیشتر تلویزیون‌های جدید:
-
-```text
-RahaTVBrowser-arm64-v8a-optimized-test.apk
-```
-
-تلویزیون‌های 32 بیتی قدیمی‌تر:
-
-```text
-RahaTVBrowser-armeabi-v7a-optimized-test.apk
-```
-
-## ساخت محلی
-
-نیازمندی‌ها:
-
-- JDK 17
-- Android SDK 36
-- Gradle 8.11.1
-- اینترنت برای دریافت GeckoView در نخستین Build
-
-```bash
-gradle :app:assembleCompact :app:bundleRelease
-```
-
-## محدودیت‌های پخش
-
-این پروژه خود کتابخانه تجاری JW Player را داخل APK قرار نمی‌دهد؛ بلکه صفحات وبی را که JW Player را قانونی و صحیح بارگذاری می‌کنند اجرا می‌کند. پخش نهایی به کدک دستگاه، نوع Stream، تنظیمات CORS، گواهی HTTPS، DRM، مجوزهای سرویس و کیفیت پیاده‌سازی سایت وابسته است.
-
-وضعیت اعتبارسنجی در `BUILD_STATUS_FA.md` و روش به‌روزرسانی GitHub در `UPDATE_GITHUB_V0.3.3_FA.md` آمده است.
-
-## نسخه 0.4.0
-
-این نسخه تب‌ها، Private Mode، History، Settings و Player داخلی Media3 را اضافه می‌کند و دو APK جداگانه ARM تولید می‌کند. راهنمای Update امضاشده در `SIGNING_AND_UPDATE_FA.md` است.
-
-## فونت رابط در نسخه 0.4.1
-
-نسخه 0.4.1 آماده استفاده از Vazirmatn است. فایل فونت را با نام `vazirmatn.ttf` در مسیر `app/src/main/res/font/` قرار دهید. اگر فایل وجود نداشته باشد، برنامه از فونت پیش‌فرض Android استفاده می‌کند. جزئیات در `FONT_VAZIRMATN_SETUP_FA.md` آمده است.
+`raha-tv-browser-debug-and-unsigned-bundle`

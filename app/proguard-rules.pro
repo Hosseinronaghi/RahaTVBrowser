@@ -1,1 +1,6 @@
-# GeckoView supplies its own consumer rules. Keep this file for app-specific rules.
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keep class com.raha.browser.tv.VideoBridge { *; }
+-dontwarn org.conscrypt.**
+-dontwarn okhttp3.**

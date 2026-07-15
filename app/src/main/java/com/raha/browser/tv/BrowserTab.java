@@ -1,20 +1,17 @@
 package com.raha.browser.tv;
 
-import org.mozilla.geckoview.GeckoSession;
+import android.webkit.WebView;
 
 final class BrowserTab {
     final long id;
-    final GeckoSession session;
+    final WebView webView;
     final boolean privateMode;
     String title = "New tab";
-    String url;
-    boolean home;
-    boolean canGoBack;
-    boolean canGoForward;
+    String url = "";
 
-    BrowserTab(long id, GeckoSession session, boolean privateMode) {
+    BrowserTab(long id, WebView webView, boolean privateMode) {
         this.id = id;
-        this.session = session;
+        this.webView = webView;
         this.privateMode = privateMode;
     }
 }

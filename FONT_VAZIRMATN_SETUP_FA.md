@@ -1,13 +1,7 @@
-# راه‌اندازی فونت Vazirmatn در RahaTVBrowser 0.4.1
+# افزودن Vazirmatn
 
-نسخه 0.4.1 به‌صورت آماده از منبع فونت با نام `vazirmatn` پشتیبانی می‌کند.
+فایل فونت خود را با نام `vazirmatn.ttf` در `app/src/main/res/font/` قرار دهید. سپس در `app/src/main/res/values/styles.xml` دو مقدار زیر را تغییر دهید:
 
-مسیر پیشنهادی:
+`android:fontFamily` و `fontFamily` به `@font/vazirmatn`.
 
-```text
-app/src/main/res/font/vazirmatn.ttf
-```
-
-نام فایل باید دقیقاً با حروف کوچک باشد. پس از اضافه‌کردن فایل، Build بعدی به‌طور خودکار فونت را روی نوار ابزار، آدرس، دکمه‌ها و متن‌های رابط اعمال می‌کند. در صورت نبود فایل، برنامه به فونت پیش‌فرض سیستم برمی‌گردد و Build متوقف نمی‌شود.
-
-برای کمترین افزایش حجم، یک فایل Variable TTF کافی است. مجوز Vazirmatn از نوع SIL Open Font License 1.1 است؛ متن مجوز فونت را نیز کنار سورس نگه دارید.
+هیچ فایل README یا Markdown را داخل پوشه `res/font` قرار ندهید.
