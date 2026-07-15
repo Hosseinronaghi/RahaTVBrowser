@@ -1,86 +1,77 @@
 name: RahaTVBrowser build
-
 on:
   workflow_dispatch:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-
 permissions:
   contents: read
-
 jobs:
   build:
-    name: Build split and universal APKs plus AAB
+    name: Validate and build APKs plus AAB
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-
+      - name: Validate Android resources
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad=$(find app/src/main/res -type f ! \( -name '*.xml' -o -name '*.png' -o -name '*.webp' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.ttf' -o -name '*.otf' -o -name '*.ttc' \) -print)
+          if [ -n "$bad" ]; then echo "Invalid files inside res:"; echo "$bad"; exit 1; fi
+          if find app/src/main/res -type f \( -name '*.tmp' -o -name '*.bak' -o -name '*.md' -o -name '*.txt' \) | grep -q .; then echo "Temporary/document files are not allowed in res"; exit 1; fi
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
           cache: gradle
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "8.13"
-
+          gradle-version: '8.13'
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
-
       - name: Install Android SDK 36
-        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
-
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Prepare optional permanent signing
         env:
           RAHA_KEYSTORE_BASE64: ${{ secrets.RAHA_KEYSTORE_BASE64 }}
-          RAHA_KEYSTORE_PASSWORD_SECRET: ${{ secrets.RAHA_KEYSTORE_PASSWORD }}
-          RAHA_KEY_ALIAS_SECRET: ${{ secrets.RAHA_KEY_ALIAS }}
-          RAHA_KEY_PASSWORD_SECRET: ${{ secrets.RAHA_KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.RAHA_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.RAHA_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.RAHA_KEY_PASSWORD }}
         run: |
           if [ -n "$RAHA_KEYSTORE_BASE64" ]; then
             echo "$RAHA_KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/app/raha-release.jks"
             echo "RAHA_SIGNING_ENABLED=true" >> "$GITHUB_ENV"
             echo "RAHA_KEYSTORE_FILE=$GITHUB_WORKSPACE/app/raha-release.jks" >> "$GITHUB_ENV"
-            echo "RAHA_KEYSTORE_PASSWORD=$RAHA_KEYSTORE_PASSWORD_SECRET" >> "$GITHUB_ENV"
-            echo "RAHA_KEY_ALIAS=$RAHA_KEY_ALIAS_SECRET" >> "$GITHUB_ENV"
-            echo "RAHA_KEY_PASSWORD=$RAHA_KEY_PASSWORD_SECRET" >> "$GITHUB_ENV"
+            echo "RAHA_KEYSTORE_PASSWORD=$STORE_PASSWORD" >> "$GITHUB_ENV"
+            echo "RAHA_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
+            echo "RAHA_KEY_PASSWORD=$KEY_PASSWORD" >> "$GITHUB_ENV"
           else
             echo "RAHA_SIGNING_ENABLED=false" >> "$GITHUB_ENV"
           fi
-
-      - name: Build compact split and universal APKs
+      - name: Build split and universal APKs
         run: gradle --no-daemon --stacktrace :app:assembleCompact
-
       - name: Build release AAB
         run: gradle --no-daemon --stacktrace -PrahaBundleBuild=true :app:bundleRelease
-
-      - name: Collect outputs
+      - name: Collect and inspect outputs
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p release-files
           find app/build/outputs -type f | sort
-          ARM64=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "arm64|v8a" | grep -v -i universal | head -n1)
-          ARM32=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -E "armeabi|v7a" | grep -v -i universal | head -n1)
-          UNIVERSAL=$(find app/build/outputs/apk/compact -type f -name "*.apk" | grep -i universal | head -n1)
-          AAB=$(find app/build/outputs/bundle/release -type f -name "*.aab" | head -n1)
-          test -n "$ARM64"
-          test -n "$ARM32"
-          test -n "$UNIVERSAL"
-          test -n "$AAB"
+          ARM64=$(find app/build/outputs/apk/compact -type f -name '*.apk' | grep -E 'arm64|v8a' | grep -vi universal | head -n1)
+          ARM32=$(find app/build/outputs/apk/compact -type f -name '*.apk' | grep -E 'armeabi|v7a' | grep -vi universal | head -n1)
+          UNIVERSAL=$(find app/build/outputs/apk/compact -type f -name '*.apk' | grep -i universal | head -n1)
+          AAB=$(find app/build/outputs/bundle/release -type f -name '*.aab' | head -n1)
           cp "$ARM64" release-files/RahaTVBrowser-arm64-v8a.apk
           cp "$ARM32" release-files/RahaTVBrowser-armeabi-v7a.apk
           cp "$UNIVERSAL" release-files/RahaTVBrowser-universal.apk
           cp "$AAB" release-files/RahaTVBrowser-release.aab
-          (cd release-files && sha256sum * > SHA256SUMS.txt)
-          ls -lh release-files
-
+          (cd release-files && sha256sum RahaTVBrowser-* > SHA256SUMS.txt)
+          du -h release-files/*
       - name: Upload outputs
         uses: actions/upload-artifact@v4
         with:
