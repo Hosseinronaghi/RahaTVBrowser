@@ -1,7 +1,7 @@
-# افزودن Vazirmatn
+# فونت وزیرمتن
 
-فایل فونت خود را با نام `vazirmatn.ttf` در `app/src/main/res/font/` قرار دهید. سپس در `app/src/main/res/values/styles.xml` دو مقدار زیر را تغییر دهید:
+فایل فونت موجود خودتان را با نام دقیق زیر نگه دارید:
 
-`android:fontFamily` و `fontFamily` به `@font/vazirmatn`.
+`app/src/main/res/font/vazirmatn.ttf`
 
-هیچ فایل README یا Markdown را داخل پوشه `res/font` قرار ندهید.
+نسخه اصلاحی فونت را هم در رابط بومی اندروید و هم در صفحه خانه بارگذاری می‌کند. فایل باینری فونت داخل این بسته قرار داده نشده است.

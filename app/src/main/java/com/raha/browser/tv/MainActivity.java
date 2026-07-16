@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String HOME_URL = "file:///android_asset/home/index.html";
     private static final String FRIENDLY_HOME = "raha://home";
     private static final int MAX_TABS = 5;
-    private static final String MOBILE_UA = "Mozilla/5.0 (Linux; Android 13; TV) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 RahaTVBrowser/0.6";
+    private static final String MOBILE_UA = "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36 RahaTVBrowser/0.6";
     private static final String DESKTOP_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 RahaTVBrowser/0.6";
 
     private final List<BrowserTab> tabs = new ArrayList<>();
@@ -85,9 +85,12 @@ public class MainActivity extends AppCompatActivity {
         addressBar = findViewById(R.id.addressBar);
         progressBar = findViewById(R.id.progressBar);
         cursor = findViewById(R.id.cursorOverlay);
+        cursor.setVisibility(View.GONE);
         cursor.setSpeed(settings.pointerSpeed());
+        FontManager.apply(this, findViewById(android.R.id.content));
         applyDirection(findViewById(R.id.root));
         bindToolbar();
+        updateToolbarModes();
         String initial = getIntent() != null && getIntent().getData() != null ? getIntent().getDataString() : HOME_URL;
         createTab(false, initial);
     }
@@ -117,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.reloadButton).setOnClickListener(v->{WebView w=currentWeb();if(w!=null)w.reload();});
         findViewById(R.id.favoriteButton).setOnClickListener(v->toggleFavorite());
         findViewById(R.id.desktopButton).setOnClickListener(v->setDesktop(!settings.desktop()));
+        findViewById(R.id.themeButton).setOnClickListener(v->toggleTheme());
         findViewById(R.id.voiceButton).setOnClickListener(v->startVoice());
         findViewById(R.id.playerButton).setOnClickListener(v->openDetectedMedia());
         findViewById(R.id.tabsButton).setOnClickListener(v->showTabsDialog());
@@ -136,7 +140,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void configureWebView(WebView web,boolean privateMode){
         web.setBackgroundColor(Color.TRANSPARENT); web.setFocusable(true); web.setFocusableInTouchMode(true); web.setLayerType(View.LAYER_TYPE_HARDWARE,null);
-        WebSettings ws=web.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(!privateMode); ws.setDatabaseEnabled(!privateMode); ws.setMediaPlaybackRequiresUserGesture(false); ws.setAllowFileAccess(false); ws.setAllowContentAccess(true); ws.setAllowFileAccessFromFileURLs(false); ws.setAllowUniversalAccessFromFileURLs(false); ws.setBuiltInZoomControls(true); ws.setDisplayZoomControls(false); ws.setSupportMultipleWindows(true); ws.setJavaScriptCanOpenWindowsAutomatically(true); ws.setUseWideViewPort(settings.desktop()); ws.setLoadWithOverviewMode(settings.desktop()); ws.setUserAgentString(settings.desktop()?DESKTOP_UA:MOBILE_UA); ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW); ws.setCacheMode(privateMode?WebSettings.LOAD_NO_CACHE:WebSettings.LOAD_DEFAULT); ws.setSaveFormData(!privateMode);
+        web.setOnTouchListener((v,event)->{ if ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE || event.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE) cursor.setVisibility(View.GONE); return false; });
+        WebSettings ws=web.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(!privateMode); ws.setDatabaseEnabled(!privateMode); ws.setMediaPlaybackRequiresUserGesture(false); ws.setAllowFileAccess(false); ws.setAllowContentAccess(true); ws.setAllowFileAccessFromFileURLs(false); ws.setAllowUniversalAccessFromFileURLs(false); ws.setBuiltInZoomControls(true); ws.setDisplayZoomControls(false); ws.setSupportMultipleWindows(true); ws.setJavaScriptCanOpenWindowsAutomatically(true); ws.setUseWideViewPort(settings.desktop()); ws.setLoadWithOverviewMode(settings.desktop()); ws.setTextZoom(settings.desktop()?85:100); ws.setUserAgentString(settings.desktop()?DESKTOP_UA:MOBILE_UA); ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW); ws.setCacheMode(privateMode?WebSettings.LOAD_NO_CACHE:WebSettings.LOAD_DEFAULT); ws.setSaveFormData(!privateMode);
         CookieManager.getInstance().setAcceptCookie(true); CookieManager.getInstance().setAcceptThirdPartyCookies(web,!privateMode);
         if(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING)) WebViewCompat.startSafeBrowsing(this,null);
         web.addJavascriptInterface(new VideoBridge(url->runOnUiThread(()->{if(isPlayableUrl(url))detectedMediaUrl=url;})),"RahaVideo");
@@ -148,9 +153,9 @@ public class MainActivity extends AppCompatActivity {
         web.setWebViewClient(new WebViewClient(){
             @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest req){String u=req.getUrl().toString();if(isPlayableUrl(u)){detectedMediaUrl=u;openPlayer(u,req.getRequestHeaders().get("Referer"));return true;}return !(u.startsWith("http://")||u.startsWith("https://")||u.startsWith("file:///android_asset/"));}
             @Override public WebResourceResponse shouldInterceptRequest(WebView view,WebResourceRequest req){String u=req.getUrl().toString();if(isPlayableUrl(u))detectedMediaUrl=u;return super.shouldInterceptRequest(view,req);}
-            @Override public void onPageFinished(WebView view,String url){BrowserTab t=findTab(view);if(t==null)return;t.url=url;t.title=isHome(url)?getString(R.string.home_title):(view.getTitle()==null||view.getTitle().isBlank()?shortUrl(url):view.getTitle());if(t==currentTab()){addressBar.setText(isHome(url)?FRIENDLY_HOME:url);updateFavoriteIcon();}if(!t.privateMode&&!isHome(url))store.addHistory(t.title,url);if(isHome(url))injectHome(view);else injectVideoDetector(view);}
+            @Override public void onPageFinished(WebView view,String url){BrowserTab t=findTab(view);if(t==null)return;t.url=url;t.title=isHome(url)?getString(R.string.home_title):(view.getTitle()==null||view.getTitle().isBlank()?shortUrl(url):view.getTitle());if(t==currentTab()){addressBar.setText(isHome(url)?FRIENDLY_HOME:url);updateFavoriteIcon();}if(!t.privateMode&&!isHome(url))store.addHistory(t.title,url);if(isHome(url))injectHome(view);else { injectViewportMode(view); injectVideoDetector(view); }}
         });
-        web.setOnGenericMotionListener((v,event)->{if((event.getSource()&InputDevice.SOURCE_MOUSE)==InputDevice.SOURCE_MOUSE)cursor.hideCursor();return false;});
+        web.setOnGenericMotionListener((v,event)->{if((event.getSource()&InputDevice.SOURCE_MOUSE)==InputDevice.SOURCE_MOUSE)cursor.setVisibility(View.GONE);return false;});
     }
 
     private BrowserTab findTab(WebView v){for(BrowserTab t:tabs)if(t.webView==v)return t;return null;}
@@ -162,6 +167,14 @@ public class MainActivity extends AppCompatActivity {
     }
     private JSONArray entriesJson(List<BrowserStore.Entry> list)throws Exception{JSONArray a=new JSONArray();for(BrowserStore.Entry e:list){JSONObject o=new JSONObject();o.put("title",e.title());o.put("url",e.url());a.put(o);}return a;}
     private void handleHomeAction(String action,String value){switch(action){case"open"->loadInput(value);case"search"->loadInput(value);case"voice"->startVoice();case"newtab"->createTab(false,HOME_URL);case"files"->startActivity(new Intent(this,LocalMediaActivity.class));case"iptv"->startActivity(new Intent(this,IptvActivity.class));case"settings"->startActivity(new Intent(this,SettingsActivity.class));}}
+
+
+    private void injectViewportMode(WebView web){
+        boolean desktop=settings.desktop();
+        String content=desktop?"width=1280, initial-scale=1":"width=device-width, initial-scale=1, maximum-scale=5";
+        String js="(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head&&document.head.appendChild(m);}if(m)m.setAttribute('content',"+JSONObject.quote(content)+");document.documentElement.style.webkitTextSizeAdjust='100%';})();";
+        web.evaluateJavascript(js,null);
+    }
 
     private void injectVideoDetector(WebView web){String js="javascript:(function(){try{function s(u){if(u&&typeof u==='string'&&!u.startsWith('blob:'))RahaVideo.onVideoFound(u);}document.querySelectorAll('video,source').forEach(v=>s(v.currentSrc||v.src));if(window.jwplayer){try{for(var i=0;i<8;i++){var j=window.jwplayer(i);if(j&&j.getPlaylistItem){var p=j.getPlaylistItem();if(p){s(p.file);(p.sources||[]).forEach(x=>s(x.file));}}}}catch(e){}}new MutationObserver(()=>document.querySelectorAll('video,source').forEach(v=>s(v.currentSrc||v.src))).observe(document.documentElement,{childList:true,subtree:true,attributes:true});}catch(e){}})();";web.evaluateJavascript(js,null);}
 
@@ -180,7 +193,41 @@ public class MainActivity extends AppCompatActivity {
     private void loadInput(String input){String v=input==null?"":input.trim();if(v.isEmpty()||v.equals(FRIENDLY_HOME)){showHome();return;}String u;if(v.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*"))u=v;else if(v.contains(".")&&!v.contains(" "))u="https://"+v;else u="https://www.google.com/search?q="+URLEncoder.encode(v,StandardCharsets.UTF_8);WebView w=currentWeb();if(w!=null)w.loadUrl(u);}
     private void toggleFavorite(){BrowserTab t=currentTab();if(t==null||isHome(t.url)||t.privateMode)return;store.toggleFavorite(t.title,t.url);updateFavoriteIcon();}
     private void updateFavoriteIcon(){Button b=findViewById(R.id.favoriteButton);BrowserTab t=currentTab();b.setText(t!=null&&store.isFavorite(t.url)?"★":"☆");}
-    private void setDesktop(boolean desktop){settings.put("desktop",desktop);for(BrowserTab t:tabs){WebSettings ws=t.webView.getSettings();ws.setUserAgentString(desktop?DESKTOP_UA:MOBILE_UA);ws.setUseWideViewPort(desktop);ws.setLoadWithOverviewMode(desktop);ws.setTextZoom(desktop?85:100);}((Button)findViewById(R.id.desktopButton)).setText(desktop?"M":"D");WebView w=currentWeb();if(w!=null){w.clearCache(false);w.reload();}}
+    private void setDesktop(boolean desktop){
+        settings.put("desktop",desktop);
+        for(BrowserTab t:tabs){
+            WebSettings ws=t.webView.getSettings();
+            ws.setUserAgentString(desktop?DESKTOP_UA:MOBILE_UA);
+            ws.setUseWideViewPort(desktop);
+            ws.setLoadWithOverviewMode(desktop);
+            ws.setTextZoom(desktop?85:100);
+            ws.setSupportZoom(true);
+        }
+        updateToolbarModes();
+        Toast.makeText(this,desktop?R.string.desktop_mode_enabled:R.string.mobile_mode_enabled,Toast.LENGTH_SHORT).show();
+        WebView w=currentWeb();
+        if(w!=null){
+            String url=w.getUrl();
+            w.stopLoading();
+            w.clearCache(false);
+            if(url==null||url.isBlank()) url=HOME_URL;
+            w.loadUrl(url);
+        }
+    }
+
+    private void toggleTheme(){
+        String next="dark".equals(resolvedTheme())?"light":"dark";
+        settings.put("theme",next);
+        AppCompatDelegate.setDefaultNightMode("light".equals(next)?AppCompatDelegate.MODE_NIGHT_NO:AppCompatDelegate.MODE_NIGHT_YES);
+        recreate();
+    }
+
+    private void updateToolbarModes(){
+        Button desktop=findViewById(R.id.desktopButton);
+        if(desktop!=null) desktop.setText(settings.desktop()?"M":"D");
+        Button theme=findViewById(R.id.themeButton);
+        if(theme!=null) theme.setText("light".equals(resolvedTheme())?"☀":"☾");
+    }
 
     private void openDetectedMedia(){if(detectedMediaUrl==null||detectedMediaUrl.isBlank()){WebView w=currentWeb();if(w!=null)injectVideoDetector(w);Toast.makeText(this,R.string.no_media_detected,Toast.LENGTH_SHORT).show();return;}openPlayer(detectedMediaUrl,currentTab()==null?null:currentTab().url);}
     private void openPlayer(String url,String referer){Intent i=new Intent(this,PlayerActivity.class);i.putExtra(PlayerActivity.EXTRA_URL,url);i.putExtra(PlayerActivity.EXTRA_REFERER,referer);i.putExtra(PlayerActivity.EXTRA_USER_AGENT,currentWeb()==null?MOBILE_UA:currentWeb().getSettings().getUserAgentString());i.putExtra(PlayerActivity.EXTRA_MAX_HEIGHT,settings.preferredHeight());String c=CookieManager.getInstance().getCookie(url);if(c!=null)i.putExtra(PlayerActivity.EXTRA_COOKIE,c);startActivity(i);}
@@ -191,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void goBack(){WebView w=currentWeb();if(w!=null&&w.canGoBack())w.goBack();else if(tabs.size()>1)closeCurrentTab();else new AlertDialog.Builder(this).setMessage(R.string.exit_confirm).setPositiveButton(R.string.exit,(d,x)->finish()).setNegativeButton(android.R.string.cancel,null).show();}
     @Override public void onBackPressed(){goBack();}
-    @Override protected void onResume(){super.onResume();if(settings!=null){cursor.setSpeed(settings.pointerSpeed());applySavedTheme();}WebView w=currentWeb();if(w!=null&&isHome(w.getUrl()))w.reload();}
+    @Override protected void onResume(){super.onResume();if(settings!=null){cursor.setSpeed(settings.pointerSpeed());applySavedTheme();updateToolbarModes();}WebView w=currentWeb();if(w!=null&&isHome(w.getUrl()))w.reload();}
     @Override protected void onDestroy(){for(BrowserTab t:tabs){t.webView.stopLoading();t.webView.destroy();}super.onDestroy();}
     @Override public boolean dispatchKeyEvent(KeyEvent e){
         if(e.getAction()==KeyEvent.ACTION_DOWN){
@@ -201,16 +248,19 @@ public class MainActivity extends AppCompatActivity {
             if(e.getKeyCode()==KeyEvent.KEYCODE_SEARCH){startVoice();return true;}
             View focused=getCurrentFocus();
             boolean webFocused=focused instanceof WebView || cursor.getVisibility()==View.VISIBLE;
-            if(webFocused){float step=cursor.speed();switch(e.getKeyCode()){
-                case KeyEvent.KEYCODE_DPAD_LEFT-> {cursor.move(-step,0);return true;}
-                case KeyEvent.KEYCODE_DPAD_RIGHT-> {cursor.move(step,0);return true;}
-                case KeyEvent.KEYCODE_DPAD_UP-> {cursor.move(0,-step);return true;}
-                case KeyEvent.KEYCODE_DPAD_DOWN-> {cursor.move(0,step);return true;}
+            if(webFocused){float step=cursor.speed();WebView w=currentWeb();switch(e.getKeyCode()){
+                case KeyEvent.KEYCODE_PAGE_UP,KeyEvent.KEYCODE_CHANNEL_UP -> {if(w!=null)w.scrollBy(0,-360);return true;}
+                case KeyEvent.KEYCODE_PAGE_DOWN,KeyEvent.KEYCODE_CHANNEL_DOWN -> {if(w!=null)w.scrollBy(0,360);return true;}
+                case KeyEvent.KEYCODE_DPAD_LEFT-> {cursor.setVisibility(View.VISIBLE);cursor.move(-step,0);return true;}
+                case KeyEvent.KEYCODE_DPAD_RIGHT-> {cursor.setVisibility(View.VISIBLE);cursor.move(step,0);return true;}
+                case KeyEvent.KEYCODE_DPAD_UP-> {cursor.setVisibility(View.VISIBLE);if(cursor.getCursorY()<95&&w!=null)w.scrollBy(0,-220);else cursor.move(0,-step);return true;}
+                case KeyEvent.KEYCODE_DPAD_DOWN-> {cursor.setVisibility(View.VISIBLE);if(cursor.getCursorY()>cursor.getHeight()-80&&w!=null)w.scrollBy(0,220);else cursor.move(0,step);return true;}
                 case KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_ENTER-> {clickCursor();return true;}
             }}
         }
         return super.dispatchKeyEvent(e);
     }
+    @Override public boolean dispatchGenericMotionEvent(MotionEvent event){ if((event.getSource()&InputDevice.SOURCE_MOUSE)==InputDevice.SOURCE_MOUSE) cursor.setVisibility(View.GONE); return super.dispatchGenericMotionEvent(event);}
     private void clickCursor(){WebView w=currentWeb();if(w==null)return;cursor.showClickFeedback();long now=android.os.SystemClock.uptimeMillis();float x=cursor.getCursorX();float y=cursor.getCursorY()-findViewById(R.id.toolbar).getHeight();MotionEvent down=MotionEvent.obtain(now,now,MotionEvent.ACTION_DOWN,x,y,0);MotionEvent up=MotionEvent.obtain(now,now+55,MotionEvent.ACTION_UP,x,y,0);w.dispatchTouchEvent(down);w.dispatchTouchEvent(up);down.recycle();up.recycle();}
     private boolean currentLanguageIsPersian(){return getResources().getConfiguration().getLocales().get(0).getLanguage().equals("fa");}
     private boolean resolvedRtl(){String d=settings.direction();if("rtl".equals(d))return true;if("ltr".equals(d))return false;return currentLanguageIsPersian();}

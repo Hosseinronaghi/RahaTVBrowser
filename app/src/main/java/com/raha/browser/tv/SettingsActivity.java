@@ -14,7 +14,7 @@ public class SettingsActivity extends AppCompatActivity {
     private AppSettings settings;
     private Button themeButton, languageButton, directionButton, voiceLanguageButton, qualityButton;
     @Override protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState); setContentView(R.layout.activity_settings); settings=new AppSettings(this);
+        super.onCreate(savedInstanceState); setContentView(R.layout.activity_settings); FontManager.apply(this, findViewById(android.R.id.content)); settings=new AppSettings(this);
         themeButton=findViewById(R.id.themeSetting); languageButton=findViewById(R.id.languageSetting); directionButton=findViewById(R.id.directionSetting); voiceLanguageButton=findViewById(R.id.voiceLanguageSetting); qualityButton=findViewById(R.id.qualitySetting);
         findViewById(R.id.backSettings).setOnClickListener(v->finish());
         themeButton.setOnClickListener(v->chooseTheme()); languageButton.setOnClickListener(v->chooseLanguage()); directionButton.setOnClickListener(v->chooseDirection()); voiceLanguageButton.setOnClickListener(v->chooseVoiceLanguage()); qualityButton.setOnClickListener(v->chooseQuality());

@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="22dp" android:background="@color/app_background"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical"><Button android:id="@+id/iptvBack" style="@style/ToolbarButton" android:text="‹"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/iptv" android:textSize="27sp" android:textStyle="bold"/></LinearLayout><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><EditText android:id="@+id/iptvSource" android:layout_width="0dp" android:layout_height="50dp" android:layout_weight="1" android:hint="@string/iptv_url_hint" android:inputType="textUri" android:singleLine="true" android:textDirection="ltr"/><Button android:id="@+id/iptvLoadUrl" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/load"/><Button android:id="@+id/iptvLoadFile" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/select_file"/></LinearLayout><ListView android:id="@+id/channelList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:dividerHeight="8dp"/></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/navy_950"
+    android:orientation="vertical"
+    android:padding="22dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <Button android:id="@+id/iptvBack" style="@style/ToolbarButton" android:text="×" android:contentDescription="@string/close"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/iptv" android:textColor="@color/toolbar_text" android:textSize="27sp" android:textStyle="bold"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <EditText android:id="@+id/iptvSource" android:layout_width="0dp" android:layout_height="50dp" android:layout_weight="1" android:background="@drawable/address_background" android:hint="@string/iptv_url_hint" android:inputType="textUri" android:singleLine="true" android:textDirection="ltr"/>
+        <Button android:id="@+id/iptvLoadUrl" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/load"/>
+        <Button android:id="@+id/iptvLoadFile" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/select_file"/>
+    </LinearLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/iptv_help" android:textColor="@color/toolbar_text"/>
+    <ListView android:id="@+id/channelList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:dividerHeight="8dp"/>
+</LinearLayout>

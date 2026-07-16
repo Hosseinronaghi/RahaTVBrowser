@@ -13,7 +13,7 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 16
+        versionCode = 17
         versionName = "0.6.0"
 
         vectorDrawables.useSupportLibrary = true
@@ -69,6 +69,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        getByName("main") {
+            assets.srcDir("src/main/res/font")
+        }
     }
 
     buildFeatures {

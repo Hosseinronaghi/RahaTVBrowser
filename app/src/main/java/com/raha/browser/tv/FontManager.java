@@ -2,66 +2,40 @@ package com.raha.browser.tv;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public final class FontManager {
+import androidx.core.content.res.ResourcesCompat;
 
-    private static final String TAG = "FontManager";
+final class FontManager {
+    private FontManager() {}
 
-    private FontManager() {
-        // Utility class
+    static void apply(Context context, View root) {
+        Typeface typeface = load(context);
+        if (typeface != null) applyRecursive(root, typeface);
     }
 
-    public static Typeface loadVazirmatn(Context context) {
+    private static Typeface load(Context context) {
         try {
-            return context.getResources().getFont(R.font.vazirmatn);
-        } catch (Exception error) {
-            Log.w(
-                    TAG,
-                    "Could not load Vazirmatn. Falling back to default font.",
-                    error
-            );
-            return Typeface.DEFAULT;
-        }
-    }
-
-    public static void applyTo(TextView textView) {
-        if (textView == null) {
-            return;
-        }
-
-        textView.setTypeface(loadVazirmatn(textView.getContext()));
-    }
-
-    public static void applyToTree(Context context, View rootView) {
-        if (context == null || rootView == null) {
-            return;
-        }
-
-        Typeface typeface = loadVazirmatn(context);
-        applyTypefaceRecursively(rootView, typeface);
-    }
-
-    private static void applyTypefaceRecursively(
-            View view,
-            Typeface typeface
-    ) {
-        if (view instanceof TextView) {
-            ((TextView) view).setTypeface(typeface);
-        }
-
-        if (view instanceof ViewGroup) {
-            ViewGroup group = (ViewGroup) view;
-
-            for (int index = 0; index < group.getChildCount(); index++) {
-                applyTypefaceRecursively(
-                        group.getChildAt(index),
-                        typeface
-                );
+            int id = context.getResources().getIdentifier("vazirmatn", "font", context.getPackageName());
+            if (id != 0) {
+                Typeface font = ResourcesCompat.getFont(context, id);
+                if (font != null) return font;
             }
+        } catch (Exception ignored) {}
+        try {
+            return Typeface.createFromAsset(context.getAssets(), "vazirmatn.ttf");
+        } catch (Exception ignored) {
+            try { return Typeface.createFromAsset(context.getAssets(), "fonts/vazirmatn.ttf"); }
+            catch (Exception ignoredAgain) { return null; }
+        }
+    }
+
+    private static void applyRecursive(View view, Typeface typeface) {
+        if (view instanceof TextView textView) textView.setTypeface(typeface);
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) applyRecursive(group.getChildAt(i), typeface);
         }
     }
 }

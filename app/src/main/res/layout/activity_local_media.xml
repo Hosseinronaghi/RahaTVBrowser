@@ -1,1 +1,50 @@
-<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/app_background" android:orientation="vertical" android:padding="22dp"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/files" android:textSize="28sp" android:textStyle="bold"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/local_media_help" android:layout_marginVertical="10dp"/><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"><Button android:id="@+id/selectFolderButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/focusable_button" android:text="@string/select_usb_folder" android:textColor="@color/toolbar_text"/><Button android:id="@+id/selectSingleFileButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:background="@drawable/focusable_button" android:text="@string/select_file" android:textColor="@color/toolbar_text"/></LinearLayout><ListView android:id="@+id/mediaList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:dividerHeight="8dp"/></LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/navy_950"
+    android:orientation="vertical"
+    android:padding="22dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <Button android:id="@+id/localMediaClose" style="@style/ToolbarButton" android:text="×" android:contentDescription="@string/close"/>
+        <Button android:id="@+id/localMediaUp" style="@style/ToolbarButton" android:text="↑" android:contentDescription="@string/up_folder"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/files"
+            android:textColor="@color/toolbar_text"
+            android:textSize="28sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/localMediaStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:maxLines="2"
+        android:text="@string/local_media_help"
+        android:textColor="@color/toolbar_text"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/scanStorageButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/focusable_button" android:text="@string/scan_storage" android:textColor="@color/toolbar_text"/>
+        <Button android:id="@+id/selectFolderButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:background="@drawable/focusable_button" android:text="@string/select_usb_folder" android:textColor="@color/toolbar_text"/>
+        <Button android:id="@+id/selectSingleFileButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:background="@drawable/focusable_button" android:text="@string/select_file" android:textColor="@color/toolbar_text"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/mediaList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:dividerHeight="8dp"/>
+</LinearLayout>
