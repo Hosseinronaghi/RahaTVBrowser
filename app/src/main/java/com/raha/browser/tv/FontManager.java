@@ -16,6 +16,8 @@ final class FontManager {
         if (typeface != null) applyRecursive(root, typeface);
     }
 
+    static Typeface vazirmatn(Context context) { return load(context); }
+
     private static Typeface load(Context context) {
         try {
             int id = context.getResources().getIdentifier("vazirmatn", "font", context.getPackageName());

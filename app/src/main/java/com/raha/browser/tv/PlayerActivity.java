@@ -1,13 +1,20 @@
 package com.raha.browser.tv;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
@@ -17,12 +24,16 @@ import androidx.media3.datasource.DefaultHttpDataSource;
 import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
+import androidx.media3.ui.CaptionStyleCompat;
 import androidx.media3.ui.PlayerView;
+import androidx.media3.ui.SubtitleView;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -38,18 +49,38 @@ public class PlayerActivity extends AppCompatActivity {
     public static final String EXTRA_HEADERS_JSON = "headers_json";
 
     private ExoPlayer player;
+    private PlayerView playerView;
+    private String mediaUrl;
+    private String mediaMime;
+    private final List<MediaItem.SubtitleConfiguration> externalSubtitles = new ArrayList<>();
+    private float subtitleSize = 0.0533f;
+    private int resizeModeIndex = 0;
+
+    private final ActivityResultLauncher<String[]> subtitlePicker = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(), this::attachSubtitle);
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String url = getIntent().getStringExtra(EXTRA_URL);
-        if (url == null || url.isBlank()) { finish(); return; }
-        String explicitMime = getIntent().getStringExtra(EXTRA_MIME_TYPE);
-        if (isImage(url, explicitMime)) { showImage(url); return; }
+        mediaUrl = getIntent().getStringExtra(EXTRA_URL);
+        if (mediaUrl == null || mediaUrl.isBlank()) { finish(); return; }
+        mediaMime = getIntent().getStringExtra(EXTRA_MIME_TYPE);
+        if (isImage(mediaUrl, mediaMime)) { showImage(mediaUrl); return; }
 
         setContentView(R.layout.activity_player);
-        PlayerView view = findViewById(R.id.playerView);
-        int maxHeight = getIntent().getIntExtra(EXTRA_MAX_HEIGHT, new AppSettings(this).preferredHeight());
+        FontManager.apply(this, findViewById(android.R.id.content));
+        playerView = findViewById(R.id.playerView);
+        TextView title = findViewById(R.id.playerTitle);
+        title.setText(getIntent().getStringExtra(EXTRA_TITLE));
+        findViewById(R.id.playerBack).setOnClickListener(v -> finish());
+        findViewById(R.id.playerSubtitle).setOnClickListener(v -> subtitlePicker.launch(new String[]{"application/x-subrip","text/vtt","application/ttml+xml","text/plain","*/*"}));
+        findViewById(R.id.playerSettings).setOnClickListener(v -> showPlayerSettings());
 
+        buildPlayer();
+        applySubtitleStyle();
+    }
+
+    private void buildPlayer() {
+        int maxHeight = getIntent().getIntExtra(EXTRA_MAX_HEIGHT, new AppSettings(this).preferredHeight());
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
         DefaultTrackSelector.Parameters.Builder parameters = trackSelector.buildUponParameters()
                 .setAllowVideoMixedMimeTypeAdaptiveness(true)
@@ -85,16 +116,10 @@ public class PlayerActivity extends AppCompatActivity {
                 .setLoadControl(loadControl)
                 .setMediaSourceFactory(new androidx.media3.exoplayer.source.DefaultMediaSourceFactory(dataSource))
                 .build();
-        view.setPlayer(player);
-        view.setUseController(true);
-        view.setControllerAutoShow(true);
-
-        MediaItem.Builder mediaItem = new MediaItem.Builder().setUri(Uri.parse(url));
-        String mime = explicitMime == null || explicitMime.isBlank() ? inferMime(url) : normalizeMime(explicitMime);
-        if (mime != null && !mime.isBlank()) mediaItem.setMimeType(mime);
-        player.setMediaItem(mediaItem.build());
-        player.prepare();
-        player.play();
+        playerView.setPlayer(player);
+        playerView.setUseController(true);
+        playerView.setControllerAutoShow(true);
+        setMediaItem(true);
         player.addListener(new Player.Listener() {
             @Override public void onPlayerError(PlaybackException error) {
                 String detail = error.getErrorCodeName();
@@ -105,12 +130,94 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+    private void setMediaItem(boolean play) {
+        long position = player == null ? 0 : player.getCurrentPosition();
+        MediaItem.Builder builder = new MediaItem.Builder().setUri(Uri.parse(mediaUrl));
+        String mime = mediaMime == null || mediaMime.isBlank() ? inferMime(mediaUrl) : normalizeMime(mediaMime);
+        if (mime != null && !mime.isBlank()) builder.setMimeType(mime);
+        if (!externalSubtitles.isEmpty()) builder.setSubtitleConfigurations(externalSubtitles);
+        player.setMediaItem(builder.build(), position);
+        player.prepare();
+        if (play) player.play();
+    }
+
+    private void attachSubtitle(Uri uri) {
+        if (uri == null) return;
+        try { getContentResolver().takePersistableUriPermission(uri, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {}
+        String mime = getContentResolver().getType(uri);
+        if (mime == null || mime.isBlank()) mime = subtitleMime(uri.toString());
+        MediaItem.SubtitleConfiguration config = new MediaItem.SubtitleConfiguration.Builder(uri)
+                .setMimeType(mime)
+                .setLanguage(Locale.getDefault().getLanguage())
+                .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+                .setLabel(getString(R.string.external_subtitle))
+                .build();
+        externalSubtitles.clear();
+        externalSubtitles.add(config);
+        setMediaItem(true);
+        Toast.makeText(this, R.string.subtitle_loaded, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showPlayerSettings() {
+        String[] items = {getString(R.string.playback_speed), getString(R.string.aspect_ratio), getString(R.string.subtitle_size), getString(R.string.subtitle_style)};
+        new AlertDialog.Builder(this).setTitle(R.string.player_settings).setItems(items, (d, which) -> {
+            if (which == 0) chooseSpeed();
+            else if (which == 1) chooseResizeMode();
+            else if (which == 2) chooseSubtitleSize();
+            else chooseSubtitleStyle();
+        }).show();
+    }
+
+    private void chooseSpeed() {
+        String[] labels = {"0.5×","0.75×","1×","1.25×","1.5×","2×"};
+        float[] speeds = {.5f,.75f,1f,1.25f,1.5f,2f};
+        new AlertDialog.Builder(this).setTitle(R.string.playback_speed).setItems(labels, (d,w) -> player.setPlaybackSpeed(speeds[w])).show();
+    }
+
+    private void chooseResizeMode() {
+        String[] labels = {getString(R.string.fit), getString(R.string.fill), getString(R.string.zoom)};
+        int[] modes = {androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FIT, androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_FILL, androidx.media3.ui.AspectRatioFrameLayout.RESIZE_MODE_ZOOM};
+        new AlertDialog.Builder(this).setTitle(R.string.aspect_ratio).setSingleChoiceItems(labels, resizeModeIndex, (d,w) -> { resizeModeIndex=w; playerView.setResizeMode(modes[w]); d.dismiss(); }).show();
+    }
+
+    private void chooseSubtitleSize() {
+        String[] labels = {getString(R.string.small), getString(R.string.medium), getString(R.string.large), getString(R.string.extra_large)};
+        float[] sizes = {.042f,.0533f,.066f,.08f};
+        new AlertDialog.Builder(this).setTitle(R.string.subtitle_size).setItems(labels, (d,w) -> { subtitleSize=sizes[w]; applySubtitleStyle(); }).show();
+    }
+
+    private void chooseSubtitleStyle() {
+        String[] labels = {getString(R.string.subtitle_white_black), getString(R.string.subtitle_yellow_black), getString(R.string.subtitle_white_transparent)};
+        new AlertDialog.Builder(this).setTitle(R.string.subtitle_style).setItems(labels, (d,w) -> applySubtitleStyle(w)).show();
+    }
+
+    private void applySubtitleStyle() { applySubtitleStyle(0); }
+    private void applySubtitleStyle(int styleIndex) {
+        SubtitleView subtitleView = playerView.getSubtitleView();
+        if (subtitleView == null) return;
+        Typeface typeface = FontManager.vazirmatn(this);
+        int foreground = styleIndex == 1 ? Color.YELLOW : Color.WHITE;
+        int background = styleIndex == 2 ? Color.TRANSPARENT : 0xB3000000;
+        subtitleView.setApplyEmbeddedStyles(false);
+        subtitleView.setApplyEmbeddedFontSizes(false);
+        subtitleView.setFractionalTextSize(subtitleSize);
+        subtitleView.setStyle(new CaptionStyleCompat(foreground, background, Color.TRANSPARENT, CaptionStyleCompat.EDGE_TYPE_OUTLINE, Color.BLACK, typeface));
+    }
+
     private void showImage(String url) {
         ImageView image = new ImageView(this);
         image.setBackgroundColor(Color.BLACK);
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         image.setImageURI(Uri.parse(url));
+        image.setOnClickListener(v -> finish());
         setContentView(image, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private String subtitleMime(String raw) {
+        String value = raw.toLowerCase(Locale.ROOT);
+        if (value.contains(".vtt")) return MimeTypes.TEXT_VTT;
+        if (value.contains(".ttml") || value.contains(".xml")) return MimeTypes.APPLICATION_TTML;
+        return MimeTypes.APPLICATION_SUBRIP;
     }
 
     private String inferMime(String rawUrl) {
@@ -136,48 +243,24 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private String originOf(String referer) {
-        try {
-            Uri uri = Uri.parse(referer);
-            if (uri.getScheme() == null || uri.getAuthority() == null) return null;
-            return uri.getScheme() + "://" + uri.getAuthority();
-        } catch (Exception e) { return null; }
+        try { Uri uri = Uri.parse(referer); if (uri.getScheme() == null || uri.getAuthority() == null) return null; return uri.getScheme() + "://" + uri.getAuthority(); }
+        catch (Exception e) { return null; }
     }
 
-    private String value(String key, String fallback) {
-        String value = getIntent().getStringExtra(key);
-        return value == null || value.isBlank() ? fallback : value;
-    }
-
-    private void put(Map<String,String> map, String key, String value) {
-        if (value != null && !value.isBlank()) map.put(key, value);
-    }
+    private String value(String key, String fallback) { String v=getIntent().getStringExtra(key); return v==null||v.isBlank()?fallback:v; }
+    private void put(Map<String,String> map, String key, String value) { if (value != null && !value.isBlank()) map.put(key, value); }
 
     private Map<String,String> parseHeaders(String json) {
         Map<String,String> headers = new HashMap<>();
         if (json == null || json.isBlank()) return headers;
-        try {
-            JSONObject object = new JSONObject(json);
-            Iterator<String> keys = object.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                String value = object.optString(key, "");
-                if (!key.isBlank() && !value.isBlank()) headers.put(key, value);
-            }
-        } catch (Exception ignored) {}
+        try { JSONObject object = new JSONObject(json); Iterator<String> keys = object.keys(); while (keys.hasNext()) { String key=keys.next(); String value=object.optString(key,""); if(!key.isBlank()&&!value.isBlank()) headers.put(key,value); } }
+        catch (Exception ignored) {}
         return headers;
     }
 
-    static String headersToJson(Map<String,String> headers) {
-        return new JSONObject(headers == null ? Map.of() : headers).toString();
-    }
+    static String headersToJson(Map<String,String> headers) { return new JSONObject(headers == null ? Map.of() : headers).toString(); }
 
-    @Override protected void onStop() {
-        super.onStop();
-        if (player != null) player.pause();
-    }
-
-    @Override protected void onDestroy() {
-        if (player != null) { player.release(); player = null; }
-        super.onDestroy();
-    }
+    @Override public void onBackPressed() { finish(); }
+    @Override protected void onStop() { super.onStop(); if (player != null) player.pause(); }
+    @Override protected void onDestroy() { if (player != null) { player.release(); player = null; } super.onDestroy(); }
 }

@@ -13,7 +13,7 @@ android {
         applicationId = "com.raha.browser.tv"
         minSdk = 26
         targetSdk = 35
-        versionCode = 17
+        versionCode = 18
         versionName = "0.6.0"
 
         vectorDrawables.useSupportLibrary = true

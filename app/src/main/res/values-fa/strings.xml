@@ -57,4 +57,36 @@
     <string name="theme_toggle">تغییر پوسته روشن و تیره</string>
     <string name="desktop_mode_enabled">نسخه دسکتاپ فعال شد</string>
     <string name="mobile_mode_enabled">نسخه موبایل فعال شد</string>
+
+    <string name="back">بازگشت</string>
+    <string name="forward">جلو</string>
+    <string name="home">خانه</string>
+    <string name="reload">تازه‌سازی</string>
+    <string name="favorites">علاقه‌مندی‌ها</string>
+    <string name="display_mode">حالت موبایل یا دسکتاپ</string>
+    <string name="private_mode">حالت خصوصی</string>
+    <string name="private_enabled">حالت خصوصی برای این تب فعال شد</string>
+    <string name="private_disabled">حالت خصوصی برای این تب غیرفعال شد</string>
+    <string name="more">ابزارهای بیشتر</string>
+    <string name="player">پخش‌کننده رسانه</string>
+    <string name="player_settings">تنظیمات پخش‌کننده</string>
+    <string name="add_subtitle">افزودن زیرنویس</string>
+    <string name="external_subtitle">زیرنویس خارجی</string>
+    <string name="subtitle_loaded">زیرنویس بارگذاری شد</string>
+    <string name="playback_speed">سرعت پخش</string>
+    <string name="aspect_ratio">نسبت تصویر</string>
+    <string name="subtitle_size">اندازه زیرنویس</string>
+    <string name="subtitle_style">ظاهر زیرنویس</string>
+    <string name="fit">اندازه مناسب</string>
+    <string name="fill">پرکردن صفحه</string>
+    <string name="zoom">بزرگ‌نمایی</string>
+    <string name="small">کوچک</string>
+    <string name="medium">متوسط</string>
+    <string name="large">بزرگ</string>
+    <string name="extra_large">خیلی بزرگ</string>
+    <string name="subtitle_white_black">سفید روی زمینه سیاه</string>
+    <string name="subtitle_yellow_black">زرد روی زمینه سیاه</string>
+    <string name="subtitle_white_transparent">سفید بدون زمینه</string>
+    <string name="saved_playlists">فهرست‌های ذخیره‌شده</string>
+    <string name="search_channels">جستجو در کانال‌ها</string>
 </resources>

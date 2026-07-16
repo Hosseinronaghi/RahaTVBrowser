@@ -25,6 +25,8 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -124,11 +126,12 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.voiceButton).setOnClickListener(v->startVoice());
         findViewById(R.id.playerButton).setOnClickListener(v->openDetectedMedia());
         findViewById(R.id.tabsButton).setOnClickListener(v->showTabsDialog());
-        findViewById(R.id.privateButton).setOnClickListener(v->createTab(true,HOME_URL));
+        findViewById(R.id.privateButton).setOnClickListener(v->togglePrivateMode());
         findViewById(R.id.iptvButton).setOnClickListener(v->startActivity(new Intent(this,IptvActivity.class)));
         findViewById(R.id.filesButton).setOnClickListener(v->startActivity(new Intent(this,LocalMediaActivity.class)));
         findViewById(R.id.settingsButton).setOnClickListener(v->startActivity(new Intent(this,SettingsActivity.class)));
         findViewById(R.id.closeButton).setOnClickListener(v->closeCurrentTab());
+        findViewById(R.id.moreButton).setOnClickListener(v->toggleSecondaryToolbar());
         addressBar.setOnFocusChangeListener((v,has)->{if(has&&isHome(currentTab()==null?null:currentTab().url))addressBar.selectAll();});
         addressBar.setOnEditorActionListener((v,id,e)->{if(id==EditorInfo.IME_ACTION_GO||id==EditorInfo.IME_ACTION_SEARCH||(e!=null&&e.getKeyCode()==KeyEvent.KEYCODE_ENTER)){loadInput(addressBar.getText().toString());return true;}return false;});
     }
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private void configureWebView(WebView web,boolean privateMode){
         web.setBackgroundColor(Color.TRANSPARENT); web.setFocusable(true); web.setFocusableInTouchMode(true); web.setLayerType(View.LAYER_TYPE_HARDWARE,null);
         web.setOnTouchListener((v,event)->{ if ((event.getSource() & InputDevice.SOURCE_MOUSE) == InputDevice.SOURCE_MOUSE || event.getToolType(0) == MotionEvent.TOOL_TYPE_MOUSE) cursor.setVisibility(View.GONE); return false; });
-        WebSettings ws=web.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(!privateMode); ws.setDatabaseEnabled(!privateMode); ws.setMediaPlaybackRequiresUserGesture(false); ws.setAllowFileAccess(false); ws.setAllowContentAccess(true); ws.setAllowFileAccessFromFileURLs(false); ws.setAllowUniversalAccessFromFileURLs(false); ws.setBuiltInZoomControls(true); ws.setDisplayZoomControls(false); ws.setSupportMultipleWindows(true); ws.setJavaScriptCanOpenWindowsAutomatically(true); ws.setUseWideViewPort(settings.desktop()); ws.setLoadWithOverviewMode(settings.desktop()); ws.setTextZoom(settings.desktop()?85:100); ws.setUserAgentString(settings.desktop()?DESKTOP_UA:MOBILE_UA); ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW); ws.setCacheMode(privateMode?WebSettings.LOAD_NO_CACHE:WebSettings.LOAD_DEFAULT); ws.setSaveFormData(!privateMode);
+        WebSettings ws=web.getSettings(); ws.setJavaScriptEnabled(true); ws.setDomStorageEnabled(!privateMode); ws.setDatabaseEnabled(!privateMode); ws.setMediaPlaybackRequiresUserGesture(false); ws.setAllowFileAccess(false); ws.setAllowContentAccess(true); ws.setAllowFileAccessFromFileURLs(false); ws.setAllowUniversalAccessFromFileURLs(false); ws.setBuiltInZoomControls(true); ws.setDisplayZoomControls(false); ws.setSupportMultipleWindows(true); ws.setJavaScriptCanOpenWindowsAutomatically(true); ws.setUseWideViewPort(true); ws.setLoadWithOverviewMode(true); ws.setTextZoom(settings.desktop()?90:100); ws.setUserAgentString(settings.desktop()?DESKTOP_UA:MOBILE_UA); ws.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW); ws.setCacheMode(privateMode?WebSettings.LOAD_NO_CACHE:WebSettings.LOAD_DEFAULT); ws.setSaveFormData(!privateMode);
         CookieManager.getInstance().setAcceptCookie(true); CookieManager.getInstance().setAcceptThirdPartyCookies(web,!privateMode);
         if(WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING)) WebViewCompat.startSafeBrowsing(this,null);
         web.addJavascriptInterface(new VideoBridge(url->runOnUiThread(()->{if(isPlayableUrl(url))detectedMediaUrl=url;})),"RahaVideo");
@@ -168,17 +171,9 @@ public class MainActivity extends AppCompatActivity {
     private JSONArray entriesJson(List<BrowserStore.Entry> list)throws Exception{JSONArray a=new JSONArray();for(BrowserStore.Entry e:list){JSONObject o=new JSONObject();o.put("title",e.title());o.put("url",e.url());a.put(o);}return a;}
     private void handleHomeAction(String action,String value){switch(action){case"open"->loadInput(value);case"search"->loadInput(value);case"voice"->startVoice();case"newtab"->createTab(false,HOME_URL);case"files"->startActivity(new Intent(this,LocalMediaActivity.class));case"iptv"->startActivity(new Intent(this,IptvActivity.class));case"settings"->startActivity(new Intent(this,SettingsActivity.class));}}
 
-
-    private void injectViewportMode(WebView web){
-        boolean desktop=settings.desktop();
-        String content=desktop?"width=1280, initial-scale=1":"width=device-width, initial-scale=1, maximum-scale=5";
-        String js="(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head&&document.head.appendChild(m);}if(m)m.setAttribute('content',"+JSONObject.quote(content)+");document.documentElement.style.webkitTextSizeAdjust='100%';})();";
-        web.evaluateJavascript(js,null);
-    }
-
     private void injectVideoDetector(WebView web){String js="javascript:(function(){try{function s(u){if(u&&typeof u==='string'&&!u.startsWith('blob:'))RahaVideo.onVideoFound(u);}document.querySelectorAll('video,source').forEach(v=>s(v.currentSrc||v.src));if(window.jwplayer){try{for(var i=0;i<8;i++){var j=window.jwplayer(i);if(j&&j.getPlaylistItem){var p=j.getPlaylistItem();if(p){s(p.file);(p.sources||[]).forEach(x=>s(x.file));}}}}catch(e){}}new MutationObserver(()=>document.querySelectorAll('video,source').forEach(v=>s(v.currentSrc||v.src))).observe(document.documentElement,{childList:true,subtree:true,attributes:true});}catch(e){}})();";web.evaluateJavascript(js,null);}
 
-    private void switchToTab(int index){if(index<0||index>=tabs.size())return;BrowserTab old=currentTab();if(old!=null)old.webView.onPause();webContainer.removeAllViews();currentTabIndex=index;WebView web=tabs.get(index).webView;if(web.getParent()!=null)((ViewGroup)web.getParent()).removeView(web);webContainer.addView(web,new FrameLayout.LayoutParams(-1,-1));web.onResume();addressBar.setText(isHome(tabs.get(index).url)?FRIENDLY_HOME:tabs.get(index).url);web.requestFocus();detectedMediaUrl=null;updateFavoriteIcon();}
+    private void switchToTab(int index){if(index<0||index>=tabs.size())return;BrowserTab old=currentTab();if(old!=null)old.webView.onPause();webContainer.removeAllViews();currentTabIndex=index;WebView web=tabs.get(index).webView;if(web.getParent()!=null)((ViewGroup)web.getParent()).removeView(web);webContainer.addView(web,new FrameLayout.LayoutParams(-1,-1));web.onResume();addressBar.setText(isHome(tabs.get(index).url)?FRIENDLY_HOME:tabs.get(index).url);web.requestFocus();detectedMediaUrl=null;updateFavoriteIcon();updateToolbarModes();}
     @Nullable private BrowserTab currentTab(){return currentTabIndex>=0&&currentTabIndex<tabs.size()?tabs.get(currentTabIndex):null;}
     @Nullable private WebView currentWeb(){BrowserTab t=currentTab();return t==null?null:t.webView;}
 
@@ -192,16 +187,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadInput(String input){String v=input==null?"":input.trim();if(v.isEmpty()||v.equals(FRIENDLY_HOME)){showHome();return;}String u;if(v.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*"))u=v;else if(v.contains(".")&&!v.contains(" "))u="https://"+v;else u="https://www.google.com/search?q="+URLEncoder.encode(v,StandardCharsets.UTF_8);WebView w=currentWeb();if(w!=null)w.loadUrl(u);}
     private void toggleFavorite(){BrowserTab t=currentTab();if(t==null||isHome(t.url)||t.privateMode)return;store.toggleFavorite(t.title,t.url);updateFavoriteIcon();}
-    private void updateFavoriteIcon(){Button b=findViewById(R.id.favoriteButton);BrowserTab t=currentTab();b.setText(t!=null&&store.isFavorite(t.url)?"★":"☆");}
+    private void updateFavoriteIcon(){ImageButton b=findViewById(R.id.favoriteButton);BrowserTab t=currentTab();b.setImageResource(t!=null&&store.isFavorite(t.url)?R.drawable.ic_star:R.drawable.ic_star);b.setAlpha(t!=null&&store.isFavorite(t.url)?1f:.72f);}
     private void setDesktop(boolean desktop){
         settings.put("desktop",desktop);
         for(BrowserTab t:tabs){
             WebSettings ws=t.webView.getSettings();
             ws.setUserAgentString(desktop?DESKTOP_UA:MOBILE_UA);
-            ws.setUseWideViewPort(desktop);
-            ws.setLoadWithOverviewMode(desktop);
-            ws.setTextZoom(desktop?85:100);
+            ws.setUseWideViewPort(true);
+            ws.setLoadWithOverviewMode(true);
+            ws.setTextZoom(desktop?90:100);
             ws.setSupportZoom(true);
+            ws.setBuiltInZoomControls(true);
+            ws.setDisplayZoomControls(false);
+            t.webView.setInitialScale(desktop?0:100);
         }
         updateToolbarModes();
         Toast.makeText(this,desktop?R.string.desktop_mode_enabled:R.string.mobile_mode_enabled,Toast.LENGTH_SHORT).show();
@@ -223,10 +221,47 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateToolbarModes(){
-        Button desktop=findViewById(R.id.desktopButton);
-        if(desktop!=null) desktop.setText(settings.desktop()?"M":"D");
-        Button theme=findViewById(R.id.themeButton);
-        if(theme!=null) theme.setText("light".equals(resolvedTheme())?"☀":"☾");
+        ImageButton desktop=findViewById(R.id.desktopButton);
+        if(desktop!=null){ desktop.setActivated(settings.desktop()); desktop.setAlpha(settings.desktop()?1f:.72f); }
+        ImageButton theme=findViewById(R.id.themeButton);
+        if(theme!=null) theme.setAlpha("light".equals(resolvedTheme())?.72f:1f);
+        ImageButton privacy=findViewById(R.id.privateButton);
+        BrowserTab tab=currentTab();
+        if(privacy!=null){ privacy.setActivated(tab!=null&&tab.privateMode); privacy.setAlpha(tab!=null&&tab.privateMode?1f:.72f); }
+    }
+
+    private void toggleSecondaryToolbar(){
+        View bar=findViewById(R.id.secondaryToolbar);
+        bar.setVisibility(bar.getVisibility()==View.VISIBLE?View.GONE:View.VISIBLE);
+    }
+
+    private void togglePrivateMode(){
+        BrowserTab old=currentTab();
+        if(old==null)return;
+        String url=old.url==null?HOME_URL:old.url;
+        boolean target=!old.privateMode;
+        int index=currentTabIndex;
+        WebView replacement=new WebView(this);
+        configureWebView(replacement,target);
+        BrowserTab tab=new BrowserTab(tabIds.getAndIncrement(),replacement,target);
+        tab.title=old.title;
+        tab.url=url;
+        tabs.set(index,tab);
+        old.webView.stopLoading();
+        old.webView.loadUrl("about:blank");
+        old.webView.destroy();
+        switchToTab(index);
+        replacement.loadUrl(url);
+        Toast.makeText(this,target?R.string.private_enabled:R.string.private_disabled,Toast.LENGTH_SHORT).show();
+    }
+
+    private void injectViewportMode(WebView web){
+        boolean desktop=settings.desktop();
+        String js=desktop
+                ? "(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head.appendChild(m);}m.content='width=1280, initial-scale=1, maximum-scale=5, user-scalable=yes';document.documentElement.style.maxWidth='100%';document.body.style.maxWidth='100%';document.body.style.overflowX='auto';})()"
+                : "(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head.appendChild(m);}m.content='width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes';document.documentElement.style.maxWidth='100%';document.body.style.maxWidth='100%';document.body.style.overflowX='hidden';})()";
+        web.evaluateJavascript(js,null);
+        web.postDelayed(()->{ if(desktop){ int content=Math.max(web.getContentWidth(),1); int available=Math.max(web.getWidth(),1); int scale=Math.max(25,Math.min(100,(available*100)/content)); web.setInitialScale(scale); } else web.setInitialScale(100); },350);
     }
 
     private void openDetectedMedia(){if(detectedMediaUrl==null||detectedMediaUrl.isBlank()){WebView w=currentWeb();if(w!=null)injectVideoDetector(w);Toast.makeText(this,R.string.no_media_detected,Toast.LENGTH_SHORT).show();return;}openPlayer(detectedMediaUrl,currentTab()==null?null:currentTab().url);}
@@ -234,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isPlayableUrl(String u){if(u==null)return false;String x=u.toLowerCase(Locale.ROOT);return x.contains(".m3u8")||x.contains(".mpd")||x.matches(".*\\.(mp4|m4v|webm|mkv|mp3|aac|m4a|flac|ogg|wav|ts|m2ts)(\\?.*)?$");}
 
     private void startVoice(){try{Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);String l=settings.voiceLanguage();if("auto".equals(l))l=currentLanguageIsPersian()?"fa-IR":"en-US";i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,l);i.putExtra(RecognizerIntent.EXTRA_PROMPT,getString(R.string.voice_prompt));voiceLauncher.launch(i);}catch(ActivityNotFoundException e){Toast.makeText(this,R.string.voice_unavailable,Toast.LENGTH_LONG).show();}}
-    private void handleVoice(String phrase){if(!settings.voiceCommands()){loadInput(phrase);return;}VoiceCommandHandler.Result r=VoiceCommandHandler.parse(phrase);switch(r.action()){case SEARCH->loadInput(r.query());case HOME->showHome();case BACK->goBack();case FORWARD->{WebView w=currentWeb();if(w!=null&&w.canGoForward())w.goForward();}case RELOAD->{WebView w=currentWeb();if(w!=null)w.reload();}case NEW_TAB->createTab(false,HOME_URL);case CLOSE_TAB->closeCurrentTab();case PRIVATE->createTab(true,HOME_URL);case SETTINGS->startActivity(new Intent(this,SettingsActivity.class));case LIGHT->{settings.put("theme","light");recreate();}case DARK->{settings.put("theme","dark");recreate();}case DESKTOP->setDesktop(true);case MOBILE->setDesktop(false);case YOUTUBE->loadInput("https://www.youtube.com");case GOOGLE->loadInput("https://www.google.com");case SOUNDCLOUD->loadInput("https://soundcloud.com");case CHATGPT->loadInput("https://chatgpt.com");case IPTV->startActivity(new Intent(this,IptvActivity.class));case FILES->startActivity(new Intent(this,LocalMediaActivity.class));default->Toast.makeText(this,R.string.command_not_available,Toast.LENGTH_SHORT).show();}}
+    private void handleVoice(String phrase){if(!settings.voiceCommands()){loadInput(phrase);return;}VoiceCommandHandler.Result r=VoiceCommandHandler.parse(phrase);switch(r.action()){case SEARCH->loadInput(r.query());case HOME->showHome();case BACK->goBack();case FORWARD->{WebView w=currentWeb();if(w!=null&&w.canGoForward())w.goForward();}case RELOAD->{WebView w=currentWeb();if(w!=null)w.reload();}case NEW_TAB->createTab(false,HOME_URL);case CLOSE_TAB->closeCurrentTab();case PRIVATE->togglePrivateMode();case SETTINGS->startActivity(new Intent(this,SettingsActivity.class));case LIGHT->{settings.put("theme","light");recreate();}case DARK->{settings.put("theme","dark");recreate();}case DESKTOP->setDesktop(true);case MOBILE->setDesktop(false);case YOUTUBE->loadInput("https://www.youtube.com");case GOOGLE->loadInput("https://www.google.com");case SOUNDCLOUD->loadInput("https://soundcloud.com");case CHATGPT->loadInput("https://chatgpt.com");case IPTV->startActivity(new Intent(this,IptvActivity.class));case FILES->startActivity(new Intent(this,LocalMediaActivity.class));default->Toast.makeText(this,R.string.command_not_available,Toast.LENGTH_SHORT).show();}}
 
     private void goBack(){WebView w=currentWeb();if(w!=null&&w.canGoBack())w.goBack();else if(tabs.size()>1)closeCurrentTab();else new AlertDialog.Builder(this).setMessage(R.string.exit_confirm).setPositiveButton(R.string.exit,(d,x)->finish()).setNegativeButton(android.R.string.cancel,null).show();}
     @Override public void onBackPressed(){goBack();}

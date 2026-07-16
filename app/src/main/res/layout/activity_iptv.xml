@@ -1,19 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/navy_950"
     android:orientation="vertical"
-    android:padding="22dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-        <Button android:id="@+id/iptvBack" style="@style/ToolbarButton" android:text="×" android:contentDescription="@string/close"/>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/iptv" android:textColor="@color/toolbar_text" android:textSize="27sp" android:textStyle="bold"/>
+    android:padding="14dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:gravity="center_vertical">
+        <ImageButton android:id="@+id/iptvBack" style="@style/ToolbarIconButton" android:src="@drawable/ic_back" android:contentDescription="@string/back"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/iptv" android:textColor="@color/toolbar_text" android:textSize="25sp" android:textStyle="bold"/>
+        <Button android:id="@+id/iptvLoadFile" android:layout_width="wrap_content" android:layout_height="44dp" android:text="@string/select_file"/>
     </LinearLayout>
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <EditText android:id="@+id/iptvSource" android:layout_width="0dp" android:layout_height="50dp" android:layout_weight="1" android:background="@drawable/address_background" android:hint="@string/iptv_url_hint" android:inputType="textUri" android:singleLine="true" android:textDirection="ltr"/>
-        <Button android:id="@+id/iptvLoadUrl" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/load"/>
-        <Button android:id="@+id/iptvLoadFile" android:layout_width="wrap_content" android:layout_height="50dp" android:text="@string/select_file"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:orientation="horizontal">
+        <EditText android:id="@+id/iptvSource" android:layout_width="0dp" android:layout_height="46dp" android:layout_weight="1" android:background="@drawable/address_background" android:hint="@string/iptv_url_hint" android:inputType="textUri" android:paddingHorizontal="12dp" android:singleLine="true" android:textDirection="ltr"/>
+        <Button android:id="@+id/iptvLoadUrl" android:layout_width="wrap_content" android:layout_height="46dp" android:text="@string/load"/>
     </LinearLayout>
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/iptv_help" android:textColor="@color/toolbar_text"/>
-    <ListView android:id="@+id/channelList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:dividerHeight="8dp"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:layout_marginTop="10dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" android:orientation="vertical">
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/iptvPlayer"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#000000"
+                app:resize_mode="fit"
+                app:show_buffering="always"
+                app:show_subtitle_button="true"
+                app:use_controller="true"/>
+            <TextView android:id="@+id/iptvNowPlaying" android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center_vertical" android:paddingHorizontal="10dp" android:textColor="@color/toolbar_text"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginStart="10dp" android:background="@color/navy_900" android:orientation="vertical" android:padding="8dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/saved_playlists" android:textColor="@color/toolbar_text" android:textStyle="bold"/>
+            <ListView android:id="@+id/playlistList" android:layout_width="match_parent" android:layout_height="100dp" android:choiceMode="singleChoice"/>
+            <EditText android:id="@+id/channelSearch" android:layout_width="match_parent" android:layout_height="44dp" android:background="@drawable/address_background" android:hint="@string/search_channels" android:paddingHorizontal="10dp" android:singleLine="true"/>
+            <ListView android:id="@+id/channelList" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:dividerHeight="4dp"/>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
