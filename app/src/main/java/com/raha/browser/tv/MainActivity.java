@@ -261,7 +261,34 @@ public class MainActivity extends AppCompatActivity {
                 ? "(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head.appendChild(m);}m.content='width=1280, initial-scale=1, maximum-scale=5, user-scalable=yes';document.documentElement.style.maxWidth='100%';document.body.style.maxWidth='100%';document.body.style.overflowX='auto';})()"
                 : "(function(){var m=document.querySelector('meta[name=viewport]');if(!m){m=document.createElement('meta');m.name='viewport';document.head.appendChild(m);}m.content='width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes';document.documentElement.style.maxWidth='100%';document.body.style.maxWidth='100%';document.body.style.overflowX='hidden';})()";
         web.evaluateJavascript(js,null);
-        web.postDelayed(()->{ if(desktop){ int content=Math.max(web.getContentWidth(),1); int available=Math.max(web.getWidth(),1); int scale=Math.max(25,Math.min(100,(available*100)/content)); web.setInitialScale(scale); } else web.setInitialScale(100); },350);
+        web.postDelayed(() -> {
+            if (!desktop) {
+                web.setInitialScale(100);
+                return;
+            }
+
+            String widthScript = "(function(){"
+                    + "var d=document.documentElement,b=document.body;"
+                    + "return Math.max("
+                    + "d?d.scrollWidth:0,"
+                    + "d?d.clientWidth:0,"
+                    + "b?b.scrollWidth:0,"
+                    + "b?b.clientWidth:0"
+                    + ");"
+                    + "})()";
+
+            web.evaluateJavascript(widthScript, value -> {
+                try {
+                    String normalized = value == null ? "0" : value.replace("\"", "").trim();
+                    double contentWidth = Math.max(Double.parseDouble(normalized), 1d);
+                    int availableWidth = Math.max(web.getWidth(), 1);
+                    int scale = (int) Math.round((availableWidth * 100d) / contentWidth);
+                    web.setInitialScale(Math.max(25, Math.min(100, scale)));
+                } catch (RuntimeException ignored) {
+                    web.setInitialScale(100);
+                }
+            });
+        }, 350);
     }
 
     private void openDetectedMedia(){if(detectedMediaUrl==null||detectedMediaUrl.isBlank()){WebView w=currentWeb();if(w!=null)injectVideoDetector(w);Toast.makeText(this,R.string.no_media_detected,Toast.LENGTH_SHORT).show();return;}openPlayer(detectedMediaUrl,currentTab()==null?null:currentTab().url);}
